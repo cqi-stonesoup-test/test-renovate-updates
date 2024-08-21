@@ -18,3 +18,11 @@ clean/image/utils:
 	for image_id in $$(podman images --format '{{.ID}}' $(REPO)); do \
 		podman rmi "$$image_id"; \
 		done
+
+TEST_REPO ?= cqi-stonesoup-test/test-renovate-updates
+BUILD_LOG_FILE ?= build.log
+
+.PHONY: run/renovate
+run/renovate:
+	LOG_LEVEL=debug RENOVATE_CONFIG_FILE="$(shell pwd)/renovate-global-config.json" \
+	renovate --token "$(GH_TOKEN)" "$(TEST_REPO)" 2>&1 >"$(BUILD_LOG_FILE)"
