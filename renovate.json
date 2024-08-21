@@ -8,6 +8,13 @@
     "fileMatch": ["./*.yaml"]
   },
 
+  "packageRules": [
+    {
+      "matchPackageNames": ["registry.fedoraproject.org/fedora-minimal"],
+      "enabled": false
+    }
+  ],
+
   "postUpgradeTasks": {
     "commands": [
       "echo >>README.md",
