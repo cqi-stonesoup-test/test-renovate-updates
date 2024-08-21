@@ -1,0 +1,8 @@
+{
+  "allowedPostUpgradeCommands": [
+    "^yq .+",
+    "^git .+",
+    "^echo .+",
+    "^migration-tool(\.sh|\.py)? .+"
+  ]
+}
