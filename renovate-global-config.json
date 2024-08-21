@@ -3,6 +3,6 @@
     "^yq .+",
     "^git .+",
     "^echo .+",
-    "^migration-tool(\.sh|\.py)? .+"
+    "^migration-tool(\\.sh|\\.py)? .+"
   ]
 }
