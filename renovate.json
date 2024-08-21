@@ -4,6 +4,10 @@
     "config:recommended"
   ],
 
+  "tekton": {
+    "fileMatch": ["./*.yaml"]
+  },
+
   "postUpgradeTasks": {
     "commands": ["head -n 1 Dockerfile >>README.md"]
   }
