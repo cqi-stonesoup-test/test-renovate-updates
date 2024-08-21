@@ -13,7 +13,10 @@
       "echo >>README.md",
       "git diff >>README.md",
       "echo -n \"init image:\" >>README.md",
-      "yq '.spec.tasks[] | select(.name == \"init\") | .taskRef.params[] | select(.name == \"bundle\") | .value' pipelinerun.yaml >>README.md"
+      "yq '.spec.tasks[] | select(.name == \"init\") | .taskRef.params[] | select(.name == \"bundle\") | .value' pipelinerun.yaml >>README.md",
+      "echo >>README.md",
+      "echo >>README.md",
+      "renovate-post-upgrade-task.sh >>README.md"
     ]
   }
 }
