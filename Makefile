@@ -4,17 +4,17 @@ REPO ?= quay.io/mytestworkload/test-renovate-updates-utils
 IMAGE ?= $(REPO):$(TAG)
 FLOATING_IMAGE = $(REPO):$(VERSION)
 
-BUILD_ROOT = /tmp/test-renovate-updates-xdg-data-home
-
 .PHONY: build/image/utils
 build/image/utils:
-	XDG_DATA_HOME=$(BUILD_ROOT) \
 	podman build -t $(IMAGE) -f Containerfile.utils --build-arg version=$(VERSION) . && \
-	XDG_DATA_HOME=$(BUILD_ROOT) \
 	podman tag $(IMAGE) $(FLOATING_IMAGE)
 
 .PHONY: push/image/utils
 push/image/utils:
-	XDG_DATA_HOME=$(BUILD_ROOT) podman push $(IMAGE) && \
-	XDG_DATA_HOME=$(BUILD_ROOT) podman push $(FLOATING_IMAGE)
+	podman push $(IMAGE) && podman push $(FLOATING_IMAGE)
 
+.PHONY: clean/image/utils
+clean/image/utils:
+	for image_id in $$(podman images --format '{{.ID}}' $(REPO)); do \
+		podman rmi "$$image_id"; \
+		done

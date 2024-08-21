@@ -1,7 +1,9 @@
-FROM registry.fedoraproject.org/fedora-minimal:40
+FROM debian
 ARG version=latest
 LABEL \
     org.opencontainers.image.title="utils image for testing renovate update PRs" \
     org.opencontainers.image.version="${version}" \
     org.opencontainers.image.licenses="MIT"
-CMD ["echo", "hello", "world"]
+WORKDIR /src
+COPY . .
+CMD ["bash", "main.sh"]
