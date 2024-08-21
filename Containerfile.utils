@@ -4,4 +4,4 @@ LABEL \
     org.opencontainers.image.title="utils image for testing renovate update PRs" \
     org.opencontainers.image.version="${version}" \
     org.opencontainers.image.licenses="MIT"
-CMD ["echo", "hello"]
+CMD ["echo", "hello", "world"]
