@@ -9,6 +9,11 @@
   },
 
   "postUpgradeTasks": {
-    "commands": ["head -n 1 Dockerfile >>README.md"]
+    "commands": [
+      "echo >>README.md",
+      "git diff >>README.md",
+      "echo >>README.md",
+      "yq '.spec.tasks | select(.name == \"init\") | .taskRef.params | select(.name == \"bundle\") | .value' >>README.md"
+    ]
   }
 }
