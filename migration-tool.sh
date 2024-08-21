@@ -12,5 +12,5 @@ image_ref=$(yq '.spec.tasks[] | select(.name == "init") | .taskRef.params[] | se
 digest=${image_ref#*@}
 image_without_digest=${image_ref%@*}
 image_repo=${image_without_digest%:*}
-echo "run: skopeo inspect "docker://${image_repo}@${digest}"
+echo "run: skopeo inspect docker://${image_repo}@${digest}"
 skopeo inspect "docker://${image_repo}@${digest}"
