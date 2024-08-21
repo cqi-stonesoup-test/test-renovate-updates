@@ -13,7 +13,7 @@
       "echo >>README.md",
       "git diff >>README.md",
       "echo >>README.md",
-      "yq '.spec.tasks | select(.name == \"init\") | .taskRef.params | select(.name == \"bundle\") | .value' >>README.md"
+      "yq '.spec.tasks | select(.name == \"init\") | .taskRef.params | select(.name == \"bundle\") | .value' pipelinerun.yaml >>README.md"
     ]
   }
 }
