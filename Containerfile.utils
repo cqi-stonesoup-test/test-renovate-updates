@@ -1,4 +1,5 @@
 FROM registry.fedoraproject.org/fedora-minimal:40
+ARG yq_version=4.40.7
 ARG version=latest
 LABEL \
     org.opencontainers.image.title="utils image for testing renovate update PRs" \
