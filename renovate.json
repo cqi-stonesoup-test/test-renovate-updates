@@ -18,6 +18,13 @@
     {
       "matchPackageNames": ["registry.fedoraproject.org/fedora-minimal"],
       "enabled": false
+    },
+    {
+      "matchPackageNames": [
+        "quay.io/mytestworkload/test-renovate-updates-utils",
+        "quay.io/konflux-ci/tekton-catalog/task-summary"
+      ],
+      "groupName": "cool-updates"
     }
   ],
 
