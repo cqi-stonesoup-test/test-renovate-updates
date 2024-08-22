@@ -15,7 +15,7 @@ spec:
           - name: name
             value: init
           - name: bundle
-            value: quay.io/mytestworkload/test-renovate-updates-utils:0.1@sha256:7503a7dd94009ea3a2ae4b1843b00dd41ee260efeb4464b5a4b66f297f0028e2
+            value: quay.io/mytestworkload/test-renovate-updates-utils:0.1@sha256:b8acbd5c48ce0f2e0203c2551299c2f83641ba52a1f6982f3545be127251c170
           - name: kind
             value: task
         resolver: bundles
