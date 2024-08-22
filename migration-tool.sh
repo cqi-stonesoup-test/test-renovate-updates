@@ -6,18 +6,20 @@ if [ ! -f "$plr_file" ]; then
     exit 1
 fi
 
+from_image_ref=$2
+to_image_ref=$3
+
 echo "
 
 Doing migration:
-from: $2
-to:   $3
+from: $from_image_ref
+to:   $to_image_ref
 
 " >>README.md
 
-image_ref=$(yq '.spec.tasks[] | select(.name == "init") | .taskRef.params[] | select(.name == "bundle") | .value' "$plr_file")
-digest=${image_ref#*@}
-image_without_digest=${image_ref%@*}
+digest=${to_image_ref#*@}
+image_without_digest=${to_image_ref%@*}
 image_repo=${image_without_digest%:*}
-echo "inspect image: $image_ref"
-echo "inspect image: $image_ref" >>README.md
+echo "inspect image: $to_image_ref"
+echo "inspect image: $to_image_ref" >>README.md
 skopeo inspect "docker://${image_repo}@${digest}" >>README.md
