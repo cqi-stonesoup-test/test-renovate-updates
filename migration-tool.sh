@@ -6,6 +6,8 @@ if [ ! -f "$plr_file" ]; then
     exit 1
 fi
 
+echo "dep: $2"
+
 git diff "$plr_file"
 echo
 
