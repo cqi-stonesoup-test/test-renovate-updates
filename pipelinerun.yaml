@@ -15,7 +15,17 @@ spec:
       - name: name
         value: init
       - name: bundle
-        value: quay.io/mytestworkload/test-renovate-updates-utils:0.1@sha256:a3571deec9853dcd91dbc75f9528cfd9439aa9a81b1802e86ad3b8ee783ceeb7
+        value: quay.io/mytestworkload/test-renovate-updates-utils:0.1@sha256:b2802d0fd8f0776b86907c2acb0541d50ec7552bf194bf9e09f45594b64e1eff
+      - name: kind
+        value: task
+      resolver: bundles
+  - name: summary
+    taskRef:
+      params:
+      - name: name
+        value: summary
+      - name: bundle
+        value: quay.io/konflux-ci/tekton-catalog/task-summary:0.1@sha256:594a6dc7e331e7e5f2500940fb7197afb479d7f6d1650213d1bd58ce874e1500
       - name: kind
         value: task
       resolver: bundles
