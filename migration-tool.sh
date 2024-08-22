@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-echo "THIS IS FOR CHECKING FROM WHERE RENOVATE FINDS OUT THE EXECUTABLE FOR A POST-UPGRADE TASK."
-
 plr_file=$1
 if [ ! -f "$plr_file" ]; then
     echo "PipelineRun file $plr_file does not exist." >&2
