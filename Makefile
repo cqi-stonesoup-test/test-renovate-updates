@@ -32,3 +32,9 @@ run/renovate:
 	@echo "Renovating ..."
 	@LOG_LEVEL=debug RENOVATE_CONFIG_FILE="$(shell pwd)/renovate-global-config.json" \
 		renovate --token "$(GH_TOKEN)" "$(TEST_REPO)" 2>&1 >"$(BUILD_LOG_FILE)"
+
+
+.PHONY: set-task-bundle
+set-task-bundle:
+	yq -i '(.spec.tasks[] | select(.name == "$(TASK_NAME)") | .taskRef.params[] | select(.name == "bundle") | .value) = "$(TASK_BUNDLE)"' ./pipelinerun.yaml
+

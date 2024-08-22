@@ -4,28 +4,28 @@ metadata:
   name: common-build-pipeline
 spec:
   tasks:
-  - name: init
-    params:
-    - name: image-url
-      value: quay.io/mytestworkload/test-renovate-updates:0.1
-    - name: rebuild
-      value: "false"
-    taskRef:
+    - name: init
       params:
-      - name: name
-        value: init
-      - name: bundle
-        value: quay.io/mytestworkload/test-renovate-updates-utils:0.1@sha256:b2802d0fd8f0776b86907c2acb0541d50ec7552bf194bf9e09f45594b64e1eff
-      - name: kind
-        value: task
-      resolver: bundles
-  - name: summary
-    taskRef:
-      params:
-      - name: name
-        value: summary
-      - name: bundle
-        value: quay.io/konflux-ci/tekton-catalog/task-summary:0.1@sha256:594a6dc7e331e7e5f2500940fb7197afb479d7f6d1650213d1bd58ce874e1500
-      - name: kind
-        value: task
-      resolver: bundles
+        - name: image-url
+          value: quay.io/mytestworkload/test-renovate-updates:0.1
+        - name: rebuild
+          value: "false"
+      taskRef:
+        params:
+          - name: name
+            value: init
+          - name: bundle
+            value: quay.io/mytestworkload/test-renovate-updates-utils:0.1@sha256:ae61990695eb4cbc926a2d442944f92f9eb37c17ae16c72211da69526d428036
+          - name: kind
+            value: task
+        resolver: bundles
+    - name: summary
+      taskRef:
+        params:
+          - name: name
+            value: summary
+          - name: bundle
+            value: quay.io/konflux-ci/tekton-catalog/task-summary:0.1@sha256:594a6dc7e331e7e5f2500940fb7197afb479d7f6d1650213d1bd58ce874e1500
+          - name: kind
+            value: task
+        resolver: bundles
