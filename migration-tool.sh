@@ -7,7 +7,11 @@ if [ ! -f "$plr_file" ]; then
 fi
 
 echo
-echo "dep: $2"
+echo "Doing migration:
+from: $2
+to:   $3
+"
+echo
 
 git diff "$plr_file"
 echo
