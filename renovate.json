@@ -18,7 +18,7 @@
   "postUpgradeTasks": {
     "commands": [
       "echo >>README.md",
-      "migration-tool.sh pipelinerun.yaml {{#if newDigest}}@{{newDigest}}{{/if}} >>README.md"
+      "migration-tool.sh pipelinerun.yaml {{depName}}{{#if newValue}}:{{newValue}}{{/if}}{{#if newDigest}}@{{newDigest}}{{/if}} >>README.md"
     ]
   }
 }
