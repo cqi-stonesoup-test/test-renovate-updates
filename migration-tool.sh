@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 
 set -e
+set -u
 set -o pipefail
 
-from_image_ref=$1
-to_image_ref=$2
-output_file=${3:-run.log}
+declare -r EXPECTED_IMAGE_NAMESPACE=konflux-ci/tekton-catalog
+
+declare -r from_image_ref=$1
+declare -r to_image_ref=$2
+declare -r output_file=${3:-run.log}
 
 echo "
 
@@ -21,8 +24,6 @@ image_repo=${image_without_digest%:*}
 echo "inspect image: $to_image_ref" | tee -a "$output_file"
 skopeo inspect --no-tags "docker://${image_repo}@${digest}" >>"$output_file"
 
-EXPECTED_IMAGE_NAMESPACE=konflux-ci/tekton-catalog
-
 image_repo_without_registry="${image_repo#*/}"  # remove registry host
 image_namespace="${image_repo_without_registry%/*}"  # remove image repo name
 if [ "${image_namespace}" != "$EXPECTED_IMAGE_NAMESPACE" ]; then
@@ -30,7 +31,6 @@ if [ "${image_namespace}" != "$EXPECTED_IMAGE_NAMESPACE" ]; then
     exit 0
 fi
 
-image_repo_without_registry=${image_repo#*/}
 tag=$(
     curl -s "https://quay.io/api/v1/repository/${image_repo_without_registry}/tag/" | \
     jq -r ".tags[] | select(.manifest_digest == \"${digest}\") | select(.name | test(\"^[0-9.]+-[0-9a-f]+$\")) | .name"
