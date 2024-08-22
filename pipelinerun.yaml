@@ -25,7 +25,7 @@ spec:
           - name: name
             value: summary
           - name: bundle
-            value: quay.io/konflux-ci/tekton-catalog/task-summary:0.1@sha256:594a6dc7e331e7e5f2500940fb7197afb479d7f6d1650213d1bd58ce874e1500
+            value: quay.io/konflux-ci/tekton-catalog/task-summary:0.2@sha256:d97c04ab42f277b1103eb6f3a053b247849f4f5b3237ea302a8ecada3b24e15b
           - name: kind
             value: task
         resolver: bundles
