@@ -13,9 +13,6 @@ to:   $3
 "
 echo
 
-git diff "$plr_file"
-echo
-
 image_ref=$(yq '.spec.tasks[] | select(.name == "init") | .taskRef.params[] | select(.name == "bundle") | .value' "$plr_file")
 digest=${image_ref#*@}
 image_without_digest=${image_ref%@*}
