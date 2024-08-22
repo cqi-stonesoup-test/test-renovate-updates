@@ -5,6 +5,7 @@ set -u
 set -o pipefail
 
 declare -r EXPECTED_IMAGE_NAMESPACE=konflux-ci/tekton-catalog
+declare -r DOCKER_BUILD_PL_BUNDLE_REPO=quay.io/konflux-ci/tekton-catalog/pipeline-docker-build
 
 declare -r from_image_ref=$1
 declare -r to_image_ref=$2
@@ -33,11 +34,11 @@ fi
 
 tag=$(
     curl -s "https://quay.io/api/v1/repository/${image_repo_without_registry}/tag/" | \
-    jq -r ".tags[] | select(.manifest_digest == \"${digest}\") | select(.name | test(\"^[0-9.]+-[0-9a-f]+$\")) | .name"
+    jq -r ".tags[] | select(.manifest_digest == \"${digest}\" and (.name | test(\"^[0-9.]+-[0-9a-f]+$\"))) | .name"
 )
 revision=${tag#*-}
 
-pl_bundle_ref="quay.io/konflux-ci/tekton-catalog/pipeline-docker-build:${revision}"
+pl_bundle_ref="${DOCKER_BUILD_PL_BUNDLE_REPO}:${revision}"
 echo
 echo "inspect pipeline bundle: $pl_bundle_ref" | tee -a "$output_file"
 skopeo inspect --no-tags "docker://${pl_bundle_ref}" >>"$output_file"
