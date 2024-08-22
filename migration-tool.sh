@@ -22,4 +22,4 @@ image_without_digest=${to_image_ref%@*}
 image_repo=${image_without_digest%:*}
 echo "inspect image: $to_image_ref"
 echo "inspect image: $to_image_ref" >>README.md
-skopeo inspect "docker://${image_repo}@${digest}" >>README.md
+skopeo inspect --no-tags "docker://${image_repo}@${digest}" >>README.md
