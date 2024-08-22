@@ -13,7 +13,7 @@ build/image/utils:
 push/image/utils:
 	podman push $(IMAGE) && \
 	podman push $(FLOATING_IMAGE) && \
-	skopeo inspect --format '{{ .Digest }}' "docker://$${$(FLOATING_IMAGE)%:*}"
+	image_ref=$(FLOATING_IMAGE); skopeo inspect --format '{{ .Digest }}' "docker://$${image_ref%:*}"
 
 .PHONY: clean/image/utils
 clean/image/utils:
