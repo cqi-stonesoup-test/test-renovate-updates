@@ -8,8 +8,7 @@
     "fileMatch": ["./*.yaml"],
     "postUpgradeTasks": {
       "commands": [
-        "echo >>README.md",
-        "migration-tool.sh pipelinerun.yaml {{depName}}{{#if currentValue}}:{{currentValue}}{{/if}}{{#if currentDigest}}@{{currentDigest}}{{/if}} {{depName}}{{#if newValue}}:{{newValue}}{{/if}}{{#if newDigest}}@{{newDigest}}{{/if}} >>README.md"
+        "migration-tool.sh pipelinerun.yaml {{depName}}{{#if currentValue}}:{{currentValue}}{{/if}}{{#if currentDigest}}@{{currentDigest}}{{/if}} {{depName}}{{#if newValue}}:{{newValue}}{{/if}}{{#if newDigest}}@{{newDigest}}{{/if}}"
       ]
     }
   },
