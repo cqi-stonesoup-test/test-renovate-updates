@@ -49,8 +49,8 @@ def find_pipeline(task_bundle: ImageReference) -> str:
 
 def main():
     parser = argparse.ArgumentParser(description="Konflux Pipeline Migration Tool")
-    parser.add_argument("-f", "--from-task-bundle", required=True, metavar="PATH")
-    parser.add_argument("-t", "--to-task-bundle", required=True, metavar="PATH")
+    parser.add_argument("-f", "--from-task-bundle", required=True, metavar="IMAGE_REF")
+    parser.add_argument("-t", "--to-task-bundle", required=True, metavar="IMAGE_REF")
     parser.add_argument("-l", "--log-file", metavar="PATH", default="run.log", help="Build log file. Defaults to %(default)s")
 
     args = parser.parse_args()
