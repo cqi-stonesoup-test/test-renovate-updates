@@ -7,10 +7,10 @@ import re
 import subprocess
 from dataclasses import dataclass
 from typing import Final
+from pathlib import Path
 from urllib.request import urlopen
 
-EXPECTED_IMAGE_NAMESPACE: Final = "konflux-ci/tekton-catalog"
-DOCKER_BUILD_PL_BUNDLE_REPO: Final = "quay.io/konflux-ci/tekton-catalog/pipeline-docker-build"
+PL_BUNDLE_REPO: Final = "quay.io/mytestworkload/test-renovate-updates-pipeline"
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -38,13 +38,36 @@ def parse_image_reference(image_ref: str) -> ImageReference:
     image_without_digest, digest = image_ref.split("@")
     image_repo, tag = image_without_digest.rsplit(":", 1)
     registry = ""
+    repo = image_repo
     if image_repo.count("/") > 1:
         registry, repo = image_repo.split("/", 1)
     return ImageReference(registry=registry, repository=repo, tag=tag, digest=digest)
 
 
+TAG_REGEXP: Final = r"^[0-9.]+-[0-9a-f]+$"
+
+
 def find_pipeline(task_bundle: ImageReference) -> str:
-    return ""
+    api_url = f"https://quay.io/api/v1/repository/{task_bundle.repository}/tag/"
+    with urlopen(api_url) as resp:
+        data = json.loads(resp.read())
+    tag = [
+        info for info in data["tags"]
+        if info["manifest_digest"] == task_bundle.digest and re.match(TAG_REGEXP, info["name"])
+    ]
+    _, revision = tag[0]["name"].split("-")
+
+    return f"{PL_BUNDLE_REPO}:{revision}"
+
+
+def download_pipeline_from_bundle(bundle_ref: str, dest_dir: str) -> str:
+    pipeline_name: Final = "pipeline-build"
+    cmd = ["tkn", "bundle", "list", "-o", "yaml", bundle_ref, "pipeline", pipeline_name]
+    proc = subprocess.run(cmd, check=True, capture_output=True, text=True)
+    _, tag = bundle_ref.rsplit(":", 1)
+    pipeline_file = Path(dest_dir, f"{pipeline_name}-{tag}.yaml")
+    pipeline_file.write_text(proc.stdout, encoding="utf-8")
+    return str(pipeline_file)
 
 
 def main():
@@ -62,27 +85,28 @@ def main():
     build_log.info("to: %s", args.to_task_bundle)
 
     build_log.debug("inspect image: %s", args.to_task_bundle)
-    image_ref = parse_image_reference(args.to_task_bundle)
+    to_task_bundle_ref = parse_image_reference(args.to_task_bundle)
 
-    api_url = f"https://quay.io/api/v1/repository/{image_ref.repository}/manifest/{image_ref.digest}"
+    api_url = f"https://quay.io/api/v1/repository/{to_task_bundle_ref.repository}/manifest/{to_task_bundle_ref.digest}"
     with urlopen(api_url) as resp:
         data = json.loads(resp.read())
     build_log.debug("%s", json.dumps(data, indent=2))
 
     # find out the corresponding pipeline bundle
 
-    api_url = f"https://quay.io/api/v1/repository/{image_ref.repository}/tag/"
-    with urlopen(api_url) as resp:
-        data = json.loads(resp.read())
-    tag_regexp: Final = r"^[0-9.]+-[0-9a-f]+$"
-    tag = [
-        info for info in data["tags"]
-        if info["manifest_digest"] == image_ref.digest and re.match(tag_regexp, info["name"])
-    ]
-    _, revision = tag[0]["name"].split("-")
+    from_task_bundle_ref = parse_image_reference(args.from_task_bundle)
+    from_pipeline_bundle: Final = find_pipeline(from_task_bundle_ref)
+    build_log.info("found pipeline bundle: %s", from_pipeline_bundle)
+    import os
+    from_pipeline_file = download_pipeline_from_bundle(from_pipeline_bundle, os.curdir)
 
-    pipeline_bundle: Final = f"{DOCKER_BUILD_PL_BUNDLE_REPO}:{revision}"
-    build_log.info("found pipeline bundle: %s", pipeline_bundle)
+    to_pipeline_bundle: Final = find_pipeline(to_task_bundle_ref)
+    build_log.info("found pipeline bundle: %s", to_pipeline_bundle)
+    to_pipeline_file = download_pipeline_from_bundle(to_pipeline_bundle, os.curdir)
+
+    compare_cmd = ["dyff", "between", "--omit-header", "--no-table-style", from_pipeline_file, to_pipeline_file]
+    proc = subprocess.run(compare_cmd, check=True, capture_output=True, text=True)
+    build_log.info("changes to pipeline:\n%s", proc.stdout)
 
 
 if __name__ == "__main__":
