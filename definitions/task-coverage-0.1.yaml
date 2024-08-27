@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1
 kind: Task
 metadata:
-  name: report-coverage
+  name: coverage
   labels:
     app.kubernetes.io/version: "0.2"
     build.appstudio.redhat.com/build_type: "docker"

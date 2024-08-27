@@ -10,6 +10,7 @@ tkn_bundle_push() {
     local -r interval=${RETRY_INTERVAL:-5}
     local -r max_retries=5
     while true; do
+	echo "tkn bundle push " "$@"
         tkn bundle push "$@" && break
         status=$?
         ((retry+=1))
@@ -25,32 +26,19 @@ tkn_bundle_push() {
 cp ./definitions/pipeline-0.1.yaml ./definitions/temp/pipeline.yaml
 git_revision=$(git rev-parse HEAD)
 
-task_name=init
-digest_file="./definitions/temp/task-${task_name}-bundle-digest"
-bundle="quay.io/mytestworkload/test-renovate-updates-task-${task_name}:0.1"
-tkn_bundle_push -f "./definitions/task-${task_name}-0.1.yaml" "${bundle}-${git_revision}"
-skopeo copy --digestfile ./definitions/temp/task-${task_name}-bundle-digest "docker://${bundle}-${git_revision}" "docker://${bundle}"
-bundle_ref="${bundle}@$(cat "${digest_file}")"
-git_resolver="{\"resolver\": \"bundles\", \"params\": [{\"name\": \"name\", \"value\": \"${task_name}\"}, {\"name\": \"bundle\", \"value\": \"${bundle_ref}\"}, {\"name\": \"kind\", \"value\": \"task\"}]}"
-yq -i "(.spec.tasks[].taskRef | select(.name == \"${task_name}\")) |= ${git_resolver}" ./definitions/temp/pipeline.yaml
+find ./definitions/ -maxdepth 1 -name "task-*.yaml" | while read -r file_path; do
+    task_yaml_file="$(basename "$file_path")"
+    task_name=$(echo "$task_yaml_file" | cut -d'-' -f2)
+    task_version=$(echo "$task_yaml_file" | cut -d'-' -f3)
+    task_version=${task_version%.*}  # remove the file extension
 
-task_name=clone
-digest_file="./definitions/temp/task-${task_name}-bundle-digest"
-bundle="quay.io/mytestworkload/test-renovate-updates-task-${task_name}:0.1"
-tkn_bundle_push -f "./definitions/task-${task_name}-0.1.yaml" "${bundle}-${git_revision}"
-skopeo copy --digestfile "./definitions/temp/task-${task_name}-bundle-digest" "docker://${bundle}-${git_revision}" "docker://${bundle}"
-bundle_ref="${bundle}@$(cat "${digest_file}")"
-git_resolver="{\"resolver\": \"bundles\", \"params\": [{\"name\": \"name\", \"value\": \"${task_name}\"}, {\"name\": \"bundle\", \"value\": \"${bundle_ref}\"}, {\"name\": \"kind\", \"value\": \"task\"}]}"
-yq -i "(.spec.tasks[].taskRef | select(.name == \"${task_name}\")) |= ${git_resolver}" ./definitions/temp/pipeline.yaml
-
-task_name=test
-digest_file="./definitions/temp/task-${task_name}-bundle-digest"
-bundle="quay.io/mytestworkload/test-renovate-updates-task-${task_name}:0.1"
-tkn_bundle_push -f "./definitions/task-${task_name}-0.1.yaml" "${bundle}-${git_revision}"
-skopeo copy --digestfile "./definitions/temp/task-${task_name}-bundle-digest" "docker://${bundle}-${git_revision}" "docker://${bundle}"
-bundle_ref="${bundle}@$(cat "${digest_file}")"
-git_resolver="{\"resolver\": \"bundles\", \"params\": [{\"name\": \"name\", \"value\": \"${task_name}\"}, {\"name\": \"bundle\", \"value\": \"${bundle_ref}\"}, {\"name\": \"kind\", \"value\": \"task\"}]}"
-yq -i "(.spec.tasks[].taskRef | select(.name == \"${task_name}\")) |= ${git_resolver}" ./definitions/temp/pipeline.yaml
-
+    digest_file="./definitions/temp/task-${task_name}-bundle-digest"
+    bundle="quay.io/mytestworkload/test-renovate-updates-task-${task_name}:${task_version}"
+    tkn_bundle_push -f "./definitions/task-${task_name}-${task_version}.yaml" "${bundle}-${git_revision}"
+    skopeo copy --digestfile "${digest_file}" "docker://${bundle}-${git_revision}" "docker://${bundle}"
+    bundle_ref="${bundle}@$(cat "${digest_file}")"
+    git_resolver="{\"resolver\": \"bundles\", \"params\": [{\"name\": \"name\", \"value\": \"${task_name}\"}, {\"name\": \"bundle\", \"value\": \"${bundle_ref}\"}, {\"name\": \"kind\", \"value\": \"task\"}]}"
+    yq -i "(.spec.tasks[].taskRef | select(.name == \"${task_name}\")) |= ${git_resolver}" ./definitions/temp/pipeline.yaml
+done
 
 tkn_bundle_push -f ./definitions/temp/pipeline.yaml "quay.io/mytestworkload/test-renovate-updates-pipeline:${git_revision}"
