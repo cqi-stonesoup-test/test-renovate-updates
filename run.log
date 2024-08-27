@@ -74,3 +74,24 @@ spec.tasks.init.taskRef.params.bundle.value
   
 
 
+Doing migration:
+from: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:b6054bbb6a55bf6a9be18e932527fe379219c917fbb65481d02f497e4b64e4b0
+to: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:00e467c83c0188130134e0581bdd1d74fa3657ac1cef96345d92d50f9c96e3b0
+inspect image: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:00e467c83c0188130134e0581bdd1d74fa3657ac1cef96345d92d50f9c96e3b0
+found pipeline bundle: quay.io/mytestworkload/test-renovate-updates-pipeline:4d8167aaf2d66a4eb2189f5bbc4e5436247f2117
+found pipeline bundle: quay.io/mytestworkload/test-renovate-updates-pipeline:b7cc5de46a5305de9264fd5134d1e9363131f35d
+changes to pipeline:
+
+spec.tasks.init.taskRef.params.bundle.value
+  ± value change
+    - quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:b6054bbb6a55bf6a9be18e932527fe379219c917fbb65481d02f497e4b64e4b0
+    + quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:00e467c83c0188130134e0581bdd1d74fa3657ac1cef96345d92d50f9c96e3b0
+  
+
+spec.tasks.pushimage.runAfter.0
+  ± value change
+    - buildimage
+    + scanimage
+  
+
+
