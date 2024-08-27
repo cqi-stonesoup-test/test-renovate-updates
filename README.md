@@ -134,3 +134,28 @@ inspect image: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256
   ]
 }
 found pipeline bundle: quay.io/konflux-ci/tekton-catalog/pipeline-docker-build:d74cff9e9b7527b6c1303a59a608bd80b9115a12
+Doing migration:
+from: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:cd82707698ddcffc34f3c0984ff4c8460d3229e7462659355819f5758ee0ea9e
+to: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:1007b848c552ae81dc57d230d2d24e987c425a3033f8a268b73422a8ee4b1613
+inspect image: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:1007b848c552ae81dc57d230d2d24e987c425a3033f8a268b73422a8ee4b1613
+{
+  "digest": "sha256:1007b848c552ae81dc57d230d2d24e987c425a3033f8a268b73422a8ee4b1613",
+  "is_manifest_list": false,
+  "manifest_data": "{\"schemaVersion\":2,\"mediaType\":\"application/vnd.docker.distribution.manifest.v2+json\",\"config\":{\"mediaType\":\"application/vnd.docker.container.image.v1+json\",\"size\":238,\"digest\":\"sha256:c7dd7605c8fa72baa2d7a5d3f807791fe082a10c3614ddb2dbcda0595182d930\"},\"layers\":[{\"mediaType\":\"application/vnd.docker.image.rootfs.diff.tar.gzip\",\"size\":315,\"digest\":\"sha256:e2a144e37fd0d980ea9c4ae5ad7e9749ac17b589625e2db95086ef262ebd2e6a\",\"annotations\":{\"dev.tekton.image.apiVersion\":\"v1\",\"dev.tekton.image.kind\":\"task\",\"dev.tekton.image.name\":\"init\"}}]}",
+  "config_media_type": "application/vnd.docker.container.image.v1+json",
+  "layers_compressed_size": 315,
+  "layers": [
+    {
+      "index": 0,
+      "compressed_size": 315,
+      "is_remote": false,
+      "urls": null,
+      "command": null,
+      "comment": null,
+      "author": null,
+      "blob_digest": "sha256:e2a144e37fd0d980ea9c4ae5ad7e9749ac17b589625e2db95086ef262ebd2e6a",
+      "created_datetime": "Mon, 01 Jan 0001 00:00:00 -0000"
+    }
+  ]
+}
+found pipeline bundle: quay.io/konflux-ci/tekton-catalog/pipeline-docker-build:c979f58570de40e4ca5e77fc7b7fc7dac9c9fdff
