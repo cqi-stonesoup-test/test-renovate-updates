@@ -26,26 +26,29 @@ cp ./definitions/pipeline-0.1.yaml ./definitions/temp/pipeline.yaml
 git_revision=$(git rev-parse HEAD)
 
 task_name=init
+digest_file="./definitions/temp/task-${task_name}-bundle-digest"
 bundle="quay.io/mytestworkload/test-renovate-updates-task-${task_name}:0.1"
 tkn_bundle_push -f "./definitions/task-${task_name}-0.1.yaml" "${bundle}-${git_revision}"
 skopeo copy --digestfile ./definitions/temp/task-${task_name}-bundle-digest "docker://${bundle}-${git_revision}" "docker://${bundle}"
-bundle_ref="${bundle}@$(cat ./definitions/temp/task-bundle-digest)"
+bundle_ref="${bundle}@$(cat "${digest_file}")"
 git_resolver="{\"resolver\": \"bundles\", \"params\": [{\"name\": \"name\", \"value\": \"${task_name}\"}, {\"name\": \"bundle\", \"value\": \"${bundle_ref}\"}, {\"name\": \"kind\", \"value\": \"task\"}]}"
 yq -i "(.spec.tasks[].taskRef | select(.name == \"${task_name}\")) |= ${git_resolver}" ./definitions/temp/pipeline.yaml
 
 task_name=clone
+digest_file="./definitions/temp/task-${task_name}-bundle-digest"
 bundle="quay.io/mytestworkload/test-renovate-updates-task-${task_name}:0.1"
 tkn_bundle_push -f "./definitions/task-${task_name}-0.1.yaml" "${bundle}-${git_revision}"
 skopeo copy --digestfile "./definitions/temp/task-${task_name}-bundle-digest" "docker://${bundle}-${git_revision}" "docker://${bundle}"
-bundle_ref="${bundle}@$(cat ./definitions/temp/task-bundle-digest)"
+bundle_ref="${bundle}@$(cat "${digest_file}")"
 git_resolver="{\"resolver\": \"bundles\", \"params\": [{\"name\": \"name\", \"value\": \"${task_name}\"}, {\"name\": \"bundle\", \"value\": \"${bundle_ref}\"}, {\"name\": \"kind\", \"value\": \"task\"}]}"
 yq -i "(.spec.tasks[].taskRef | select(.name == \"${task_name}\")) |= ${git_resolver}" ./definitions/temp/pipeline.yaml
 
 task_name=test
+digest_file="./definitions/temp/task-${task_name}-bundle-digest"
 bundle="quay.io/mytestworkload/test-renovate-updates-task-${task_name}:0.1"
 tkn_bundle_push -f "./definitions/task-${task_name}-0.1.yaml" "${bundle}-${git_revision}"
 skopeo copy --digestfile "./definitions/temp/task-${task_name}-bundle-digest" "docker://${bundle}-${git_revision}" "docker://${bundle}"
-bundle_ref="${bundle}@$(cat ./definitions/temp/task-bundle-digest)"
+bundle_ref="${bundle}@$(cat "${digest_file}")"
 git_resolver="{\"resolver\": \"bundles\", \"params\": [{\"name\": \"name\", \"value\": \"${task_name}\"}, {\"name\": \"bundle\", \"value\": \"${bundle_ref}\"}, {\"name\": \"kind\", \"value\": \"task\"}]}"
 yq -i "(.spec.tasks[].taskRef | select(.name == \"${task_name}\")) |= ${git_resolver}" ./definitions/temp/pipeline.yaml
 

@@ -46,6 +46,6 @@ set-task-bundle:
 GIT_REVISION=$(shell git rev-parse HEAD)
 
 
-.PHONY: build-and-push
-build-and-push:
+.PHONY: build/and/push
+build/and/push:
 	./build-and-push.sh
