@@ -3,6 +3,7 @@
 import argparse
 import json
 import logging
+import os
 import re
 import subprocess
 from dataclasses import dataclass
@@ -85,24 +86,22 @@ def main():
     build_log.info("to: %s", args.to_task_bundle)
 
     build_log.debug("inspect image: %s", args.to_task_bundle)
-    to_task_bundle_ref = parse_image_reference(args.to_task_bundle)
-
-    api_url = f"https://quay.io/api/v1/repository/{to_task_bundle_ref.repository}/manifest/{to_task_bundle_ref.digest}"
-    with urlopen(api_url) as resp:
-        data = json.loads(resp.read())
-    build_log.debug("%s", json.dumps(data, indent=2))
 
     # find out the corresponding pipeline bundle
+
+    defs_temp_dir = os.path.join(os.getcwd(), "definitions", "temp")
+    if not os.path.exists(defs_temp_dir):
+        os.makedirs(os.path.join("definitions", "temp"))
 
     from_task_bundle_ref = parse_image_reference(args.from_task_bundle)
     from_pipeline_bundle: Final = find_pipeline(from_task_bundle_ref)
     build_log.info("found pipeline bundle: %s", from_pipeline_bundle)
-    import os
-    from_pipeline_file = download_pipeline_from_bundle(from_pipeline_bundle, os.curdir)
+    from_pipeline_file = download_pipeline_from_bundle(from_pipeline_bundle, defs_temp_dir)
 
+    to_task_bundle_ref = parse_image_reference(args.to_task_bundle)
     to_pipeline_bundle: Final = find_pipeline(to_task_bundle_ref)
     build_log.info("found pipeline bundle: %s", to_pipeline_bundle)
-    to_pipeline_file = download_pipeline_from_bundle(to_pipeline_bundle, os.curdir)
+    to_pipeline_file = download_pipeline_from_bundle(to_pipeline_bundle, defs_temp_dir)
 
     compare_cmd = ["dyff", "between", "--omit-header", "--no-table-style", from_pipeline_file, to_pipeline_file]
     proc = subprocess.run(compare_cmd, check=True, capture_output=True, text=True)
