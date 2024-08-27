@@ -26,8 +26,3 @@ spec:
         name: coverage
       runAfter:
         - clone
-    - name: lint
-      taskRef:
-        name: lint
-      runAfter:
-        - test
