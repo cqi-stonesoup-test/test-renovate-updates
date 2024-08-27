@@ -31,3 +31,8 @@ spec:
         name: lint
       runAfter:
         - test
+    - name: buildimage
+      taskRef:
+        name: buildimage
+      runAfter:
+        - test
