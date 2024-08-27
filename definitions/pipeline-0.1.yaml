@@ -1,0 +1,21 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: pipeline-build
+  labels:
+    "pipelines.openshift.io/used-by": ""
+    "pipelines.openshift.io/runtime": ""
+    "pipelines.openshift.io/strategy": ""
+spec:
+  tasks:
+    - name: init
+      taskRef:
+        name: init
+    - name: clone
+      taskRef:
+        name: clone
+    - name: test
+      taskRef:
+        name: test
+      runAfter:
+        - clone

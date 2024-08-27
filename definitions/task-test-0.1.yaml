@@ -1,0 +1,19 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: test
+  labels:
+    app.kubernetes.io/version: "0.2"
+    build.appstudio.redhat.com/build_type: "docker"
+  annotations:
+    tekton.dev/pipelines.minVersion: "0.12.1"
+spec:
+  steps:
+    - name: unittest
+      image: registry.fedoraproject.org/fedora-minimal:40
+      script: |
+        echo running unittests
+    - name: integration-tests
+      image: registry.fedoraproject.org/fedora-minimal:40
+      script: |
+        echo running integration tests

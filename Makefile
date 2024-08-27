@@ -40,3 +40,12 @@ run/renovate:
 set-task-bundle:
 	yq -i '(.spec.tasks[] | select(.name == "$(TASK_NAME)") | .taskRef.params[] | select(.name == "bundle") | .value) = "$(TASK_BUNDLE)"' ./pipelinerun.yaml
 
+
+# Management of tasks and pipelines
+
+GIT_REVISION=$(shell git rev-parse HEAD)
+
+
+.PHONY: build-and-push
+build-and-push:
+	./build-and-push.sh
