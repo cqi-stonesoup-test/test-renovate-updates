@@ -2,6 +2,7 @@
 *~
 build.log
 run.log
+envs
 
 venv/
 definitions/temp/
