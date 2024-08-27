@@ -1,0 +1,81 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  creationTimestamp: null
+  labels:
+    pipelines.openshift.io/runtime: ""
+    pipelines.openshift.io/strategy: ""
+    pipelines.openshift.io/used-by: ""
+  name: pipeline-build
+spec:
+  tasks:
+  - name: init
+    taskRef:
+      params:
+      - name: name
+        value: init
+      - name: bundle
+        value: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:ba848bc7c100790658559692b3b05ba1141f143d9dd437df38579019477a5b88
+      - name: kind
+        value: task
+      resolver: bundles
+  - name: clone
+    runAfter:
+    - init
+    taskRef:
+      params:
+      - name: name
+        value: clone
+      - name: bundle
+        value: quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:f0d2eb9755d6bd4cdce1bd0cd5efb603ac4933a86c1d2e07d29807d17c847932
+      - name: kind
+        value: task
+      resolver: bundles
+  - name: test
+    runAfter:
+    - clone
+    taskRef:
+      params:
+      - name: name
+        value: test
+      - name: bundle
+        value: quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:3380f0e54f113875c876723a76a30e36cf0786d24c4757e851b575ae8caaabf1
+      - name: kind
+        value: task
+      resolver: bundles
+  - name: coverage
+    runAfter:
+    - clone
+    taskRef:
+      params:
+      - name: name
+        value: coverage
+      - name: bundle
+        value: quay.io/mytestworkload/test-renovate-updates-task-coverage:0.1@sha256:b0475430104a9023382c34da9366be92bf0dcba431323dd278ccbe161cfc387d
+      - name: kind
+        value: task
+      resolver: bundles
+  - name: lint
+    runAfter:
+    - test
+    taskRef:
+      params:
+      - name: name
+        value: lint
+      - name: bundle
+        value: quay.io/mytestworkload/test-renovate-updates-task-lint:0.1@sha256:3056a2556b466bc14c90418eb04e5a72b34774fc33c0d8ffe222fa28e6db2197
+      - name: kind
+        value: task
+      resolver: bundles
+  - name: buildimage
+    runAfter:
+    - test
+    taskRef:
+      params:
+      - name: name
+        value: buildimage
+      - name: bundle
+        value: quay.io/mytestworkload/test-renovate-updates-task-buildimage:0.1@sha256:d30a978b4c90f526c1884c2351f15f385e8609247de2900608418498b53604d4
+      - name: kind
+        value: task
+      resolver: bundles
