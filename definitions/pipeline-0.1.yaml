@@ -21,8 +21,8 @@ spec:
         name: test
       runAfter:
         - clone
-    - name: report-coverage
+    - name: coverage
       taskRef:
-        name: report-coverage
+        name: coverage
       runAfter:
         - clone
