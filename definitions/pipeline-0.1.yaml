@@ -41,3 +41,8 @@ spec:
         name: scanimage
       runAfter:
         - buildimage
+    - name: pushimage
+      taskRef:
+        name: pushimage
+      runAfter:
+        - buildimage
