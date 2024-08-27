@@ -36,3 +36,8 @@ spec:
         name: buildimage
       runAfter:
         - test
+    - name: scanimage
+      taskRef:
+        name: scanimage
+      runAfter:
+        - test
