@@ -1,7 +1,6 @@
 *.swp
 *~
 build.log
-run.log
 envs
 
 venv/
