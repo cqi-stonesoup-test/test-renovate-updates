@@ -40,4 +40,4 @@ spec:
       taskRef:
         name: scanimage
       runAfter:
-        - test
+        - buildimage
