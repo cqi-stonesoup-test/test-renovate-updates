@@ -179,10 +179,7 @@ def migrate_update(from_task_bundle: str, to_task_bundle: str, defs_temp_dir: st
         next_event = events[i]
         compare_cmd = ["dyff", "between", "--omit-header", "--no-table-style", prev_event.file_path, next_event.file_path]
         proc = subprocess.run(compare_cmd, check=True, capture_output=True, text=True)
-        build_log.info(
-            "changes from pipeline %s\n        to pipeline%s:\n%s",
-            prev_event.bundle, next_event.bundle, proc.stdout,
-        )
+        build_log.info("changes from pipeline %s to pipeline%s:\n%s", prev_event.bundle, next_event.bundle, proc.stdout)
         i += 1
 
 
