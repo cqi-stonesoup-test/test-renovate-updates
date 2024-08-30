@@ -23,6 +23,12 @@ build_log.setLevel(logging.DEBUG)
 
 
 @dataclass
+class PipelineEvent:
+    bundle: str
+    file_path: str
+
+
+@dataclass
 class ImageReference:
     registry: str
     repository: str
@@ -139,12 +145,6 @@ def task_update_history(from_task_bundle: str, to_task_bundle: str) -> list[Imag
     return task_bundles_history
 
 
-@dataclass
-class PipelineEvent:
-    bundle: str
-    file_path: str
-
-
 def pipeline_history(from_task_bundle: str, to_task_bundle: str, store_dir: str) -> list[PipelineEvent]:
     """Generate pipeline history from the newest to the oldest one"""
     task_bundles_history = task_update_history(from_task_bundle, to_task_bundle)
@@ -201,7 +201,7 @@ def main():
 
     build_log.addHandler(logging.FileHandler(args.log_file))
 
-    build_log.info("Doing migration:")
+    build_log.info("Doing migration for task update:")
     build_log.info("from: %s", args.from_task_bundle)
     build_log.info("to: %s", args.to_task_bundle)
 
