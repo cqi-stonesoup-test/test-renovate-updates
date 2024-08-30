@@ -1,6 +1,7 @@
 *.swp
 *~
 build.log
+renovate.log
 envs
 
 venv/

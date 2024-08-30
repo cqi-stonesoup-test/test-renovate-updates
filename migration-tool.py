@@ -159,7 +159,16 @@ def pipeline_history(from_task_bundle: str, to_task_bundle: str, store_dir: str)
 
 
 def migrate_update(from_task_bundle: str, to_task_bundle: str, defs_temp_dir: str) -> None:
+    # FIXME: all supported pipelines must be handled.
+    #
+    # Currently, there is no way to know which supported pipeline is based on,
+    # unless the oci-ta pipelines because of task name has suffix -oci-ta.
+    #
+    # So, the process would be:
+    # 1. fetch update history for each supported pipeline, e.g. docker-build, docker-build-oci-ta
+    # 2. select the pipeline if it includes the current updated task
     events = pipeline_history(from_task_bundle, to_task_bundle, defs_temp_dir)
+
     history_len = len(events)
     if history_len < 2:
         return
