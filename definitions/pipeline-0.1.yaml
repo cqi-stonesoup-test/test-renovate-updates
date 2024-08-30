@@ -46,3 +46,6 @@ spec:
         name: pushimage
       runAfter:
         - scanimage
+
+  workspaces:
+    - name: workspace
