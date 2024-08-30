@@ -8,6 +8,9 @@ metadata:
   annotations:
     tekton.dev/pipelines.minVersion: "0.12.1"
 spec:
+  params:
+    - name: image-url
+      description: Image URL for build by PipelineRun
   steps:
     - name: init
       image: registry.fedoraproject.org/fedora-minimal:40
