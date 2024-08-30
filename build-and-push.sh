@@ -52,5 +52,12 @@ find ./definitions/ -maxdepth 1 -name "task-*.yaml" | while read -r file_path; d
     yq -i "(.spec.tasks[].taskRef | select(.name == \"${task_name}\")) |= ${git_resolver}" ./definitions/temp/pipeline.yaml
 done
 
-git_revision=$(git rev-parse HEAD)
-tkn_bundle_push -f ./definitions/temp/pipeline.yaml "quay.io/mytestworkload/test-renovate-updates-pipeline:${git_revision}"
+PIPELINE_IMAGE_REPO=quay.io/mytestworkload/test-renovate-updates-pipeline
+declare -r PIPELINE_IMAGE_REPO
+
+git_revision=$(git log -n 1 --pretty=format:%H -- ./definitions/pipeline-0.1.yaml)
+pipeline_bundle="${PIPELINE_IMAGE_REPO}:${git_revision}"
+if ! skopeo inspect --no-tags --format '{{.Digest}}' "docker://${pipeline_bundle}" >/dev/null 2>&1
+then
+    tkn_bundle_push -f ./definitions/temp/pipeline.yaml "${pipeline_bundle}"
+fi
