@@ -11,6 +11,9 @@ spec:
   params:
     - name: image-url
       description: Image URL for build by PipelineRun
+    - name: skip-checks
+      description: Skip checks against built image
+      default: "false"
   steps:
     - name: init
       image: registry.fedoraproject.org/fedora-minimal:40

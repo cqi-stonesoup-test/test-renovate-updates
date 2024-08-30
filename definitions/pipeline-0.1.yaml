@@ -9,6 +9,11 @@ metadata:
 spec:
   tasks:
     - name: init
+      params:
+        - name: image-url
+          value: "quay.io/mytesetworkload/test-renovate-updates-utils:devel"
+        - name: skip-checks
+          value: "false"
       taskRef:
         name: init
     - name: clone
