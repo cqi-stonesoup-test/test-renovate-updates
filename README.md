@@ -19,3 +19,5 @@ python3 migration-tool.py \
     -l ./run.log \
 	-p ./pipelinerun.yaml
 ```
+
+There are a few updates to `init` task and a fictional update inside which a workspace is added to the pipeline in commit 99a89935a1080c29add1567535b95597137421ad.
