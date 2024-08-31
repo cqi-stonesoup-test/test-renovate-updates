@@ -80,10 +80,6 @@ def fetch_pipeline_from_bundle(bundle_ref: str, dest_dir: str) -> str:
     return str(pipeline_file)
 
 
-def analyze_pipeline() -> dict:
-    return {}
-
-
 def map_task_bundle_to_pipeline_bundle(task_bundle: str) -> str:
     """Map task bundle to pipeline bundle which includes the task"""
     image_ref: Final = parse_image_reference(task_bundle)
