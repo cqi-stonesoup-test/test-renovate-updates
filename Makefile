@@ -71,6 +71,9 @@ code/format:
 code/flake8:
 	@python3 -m flake8 --max-line-length $(LINE_LENGTH) $(PY_SCRIPTS)
 
-
 .PHONY: code/check
 code/check: code/format code/flake8
+
+.PHONY: code/tests
+code/tests:
+	python3 -m pytest $(PY_SCRIPTS)

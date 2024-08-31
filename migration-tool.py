@@ -4,13 +4,16 @@ import argparse
 import json
 import logging
 import os
+import pytest
 import re
+import tempfile
+import tarfile
 import subprocess
-from dataclasses import dataclass
-from typing import Final
-from pathlib import Path
-from urllib.request import urlopen
 from collections.abc import Iterator
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Final
+from urllib.request import urlopen
 
 import migrate
 
@@ -36,10 +39,10 @@ class PipelineEvent:
 
 @dataclass
 class ImageReference:
-    registry: str
-    repository: str
-    tag: str
-    digest: str
+    registry: str = ""
+    repository: str = ""
+    tag: str = ""
+    digest: str = ""
 
     @property
     def digest_pinned(self) -> str:
@@ -50,16 +53,21 @@ class ImageReference:
         return os.path.join(self.registry, self.repository)
 
 
-def parse_image_reference(image_ref: str) -> ImageReference:
-    if "@sha256" not in image_ref:
-        raise ValueError(f"Image reference {image_ref} does not include digest.")
-    image_without_digest, digest = image_ref.split("@")
-    image_repo, tag = image_without_digest.rsplit(":", 1)
-    registry = ""
-    repo = image_repo
-    if image_repo.count("/") > 1:
-        registry, repo = image_repo.split("/", 1)
-    return ImageReference(registry=registry, repository=repo, tag=tag, digest=digest)
+IMAGE_REGEX: Final = r"(?P<repository>[-0-9a-z._/]+)(:(?P<tag>[0-9a-z.-]+))?(@(?P<digest>sha256:[0-9a-f]{64}))?"
+
+
+def parse_image_reference(image: str) -> ImageReference:
+    registry, repository, tag, digest = "", "", "", ""
+    match = re.match(IMAGE_REGEX, image)
+    if match:
+        repository = match.group("repository")
+        tag = match.group("tag") or ""
+        digest = match.group("digest") or ""
+        parts = repository.split("/")
+        if len(parts) > 1 and "." in parts[0]:
+            registry = parts[0]
+            repository = "/".join(parts[1:])
+    return ImageReference(registry=registry, repository=repository, tag=tag, digest=digest)
 
 
 def find_pipeline(task_bundle: ImageReference) -> str:
@@ -70,13 +78,79 @@ def find_pipeline(task_bundle: ImageReference) -> str:
     return f"{PIPELINE_BUNDLE_REPO}:{revision}"
 
 
-def fetch_pipeline_from_bundle(bundle_ref: str, dest_dir: str) -> str:
+class Registry:
+    """Represents an image registry"""
+
+    def __init__(self, host: str) -> None:
+        self.host = host.rstrip("/")
+
+    def get_manifest(self, repository: str, reference: str) -> dict:
+        url: Final = f"{self.host}/v2/{repository}/manifests/{reference}"
+        with urlopen(url) as resp:
+            return json.load(resp)
+
+    def fetch_blob(self, repository: str, digest: str, output) -> None:
+        if not digest.startswith("sha256:"):
+            raise ValueError("digest does not have prefix 'sha256:'")
+        url: Final = f"{self.host}/v2/{repository}/blobs/{digest}"
+        with urlopen(url) as resp:
+            data = resp.read()
+        output.write(data)
+
+
+class QuayIO(Registry):
+
+    def get_tag(self, repository: str, name: str) -> dict | None:
+        tags = self.list_repo_tags(repository, name)
+        if tags:
+            return tags[0]
+        return None
+
+    def list_repo_tags(self, repository: str, specific_tag: str = "") -> list[dict]:
+        tags: list[dict] = []
+        page = 1
+        while True:
+            url = f"{self.host}/api/v1/repository/{repository}/tag/?page={page}&onlyActiveTags=true"
+            if specific_tag:
+                url += "&specificTag=" + specific_tag
+            with urlopen(url) as resp:
+                data = json.loads(resp.read())
+            for tag in data["tags"]:
+                tags.append(tag)
+            if not data.get("has_additional"):
+                break
+            page = int(data["page"]) + 1
+        return tags
+
+
+quay_registry: Final = QuayIO("https://quay.io/")
+
+
+def tkn_bundle_fetch(bundle_ref: ImageReference, output) -> None:
+    manifest = quay_registry.get_manifest(bundle_ref.repository, bundle_ref.tag)
+    fslayers = manifest.get("fsLayers")
+    if not fslayers:
+        raise ValueError("No layer data is included in manifest: %r", manifest)
+    quay_registry.fetch_blob(bundle_ref.repository, fslayers[0]["blobSum"], output)
+
+
+def fetch_pipeline_from_bundle(bundle: str, dest_dir: str) -> str:
     pipeline_name: Final = "pipeline-build"
-    cmd = ["tkn", "bundle", "list", "-o", "yaml", bundle_ref, "pipeline", pipeline_name]
-    proc = subprocess.run(cmd, check=True, capture_output=True, text=True)
-    _, tag = bundle_ref.rsplit(":", 1)
-    pipeline_file = Path(dest_dir, f"{pipeline_name}-{tag}.yaml")
-    pipeline_file.write_text(proc.stdout, encoding="utf-8")
+    image_ref = parse_image_reference(bundle)
+    pipeline_file = Path(dest_dir, f"{pipeline_name}-{image_ref.tag}.yaml")
+    fd, temp_blob_file = tempfile.mkstemp()
+    os.close(fd)
+    try:
+        with open(temp_blob_file, "wb") as f:
+            tkn_bundle_fetch(image_ref, f)
+        with tarfile.open(temp_blob_file, "r") as tar:
+            members = tar.getmembers()
+            if len(members) > 1:
+                raise ValueError(f"Multiple members in pipeline bundle {bundle}")
+            pl_content = tar.extractfile(members[0]).read().decode("utf-8")
+            pipeline_file.write_text(pl_content)
+    finally:
+        os.unlink(temp_blob_file)
     return str(pipeline_file)
 
 
@@ -244,6 +318,39 @@ def main():
         os.makedirs(os.path.join("definitions", "temp"))
 
     migrate_update(args.from_task_bundle, args.to_task_bundle, defs_temp_dir, args.pipeline_run_file)
+
+
+# ############## Tests #########################
+
+
+@pytest.mark.parametrize(
+    "image,expected",
+    [
+        ["konflux-ci/app", ImageReference(registry="", repository="konflux-ci/app", tag="", digest="")],
+        ["quay.io/ns/app", ImageReference(registry="quay.io", repository="ns/app", tag="", digest="")],
+        ["quay.io/ns/app:0.1", ImageReference(registry="quay.io", repository="ns/app", tag="0.1", digest="")],
+        [
+            "quay.io/ns/app:0.1@sha256:1f5e3c9aa72e321e53af20192c7a94f5a519840f3f3578ea04c8bcb104be8e9c",
+            ImageReference(
+                registry="quay.io",
+                repository="ns/app",
+                tag="0.1",
+                digest="sha256:1f5e3c9aa72e321e53af20192c7a94f5a519840f3f3578ea04c8bcb104be8e9c",
+            ),
+        ],
+        [
+            "quay.io/ns/app@sha256:1f5e3c9aa72e321e53af20192c7a94f5a519840f3f3578ea04c8bcb104be8e9c",
+            ImageReference(
+                registry="quay.io",
+                repository="ns/app",
+                tag="",
+                digest="sha256:1f5e3c9aa72e321e53af20192c7a94f5a519840f3f3578ea04c8bcb104be8e9c",
+            ),
+        ],
+    ],
+)
+def test_parse_image_reference(image, expected):
+    assert expected == parse_image_reference(image)
 
 
 if __name__ == "__main__":
