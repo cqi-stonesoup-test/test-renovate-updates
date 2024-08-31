@@ -160,6 +160,13 @@ def pipeline_history(from_task_bundle: str, to_task_bundle: str, store_dir: str)
     return history
 
 
+def compare_pipelines(from_pipeline: str, to_pipeline: str) -> str:
+    """Compare two pipelines"""
+    compare_cmd = ["dyff", "between", "--omit-header", "--detect-kubernetes", "--no-table-style", from_pipeline, to_pipeline]
+    proc = subprocess.run(compare_cmd, check=True, capture_output=True, text=True)
+    return proc.stdout
+
+
 def migrate_update(from_task_bundle: str, to_task_bundle: str, defs_temp_dir: str, pipeline_run_file: str = "") -> None:
     # FIXME: all supported pipelines must be handled.
     #
@@ -179,11 +186,10 @@ def migrate_update(from_task_bundle: str, to_task_bundle: str, defs_temp_dir: st
     while i < history_len:
         prev_event = events[i-1]
         next_event = events[i]
-        compare_cmd = ["dyff", "between", "--omit-header", "--detect-kubernetes", "--no-table-style", prev_event.file_path, next_event.file_path]
-        proc = subprocess.run(compare_cmd, check=True, capture_output=True, text=True)
-        build_log.info("changes from pipeline %s to pipeline%s:\n%s", prev_event.bundle, next_event.bundle, proc.stdout)
+        diff = compare_pipelines(prev_event.file_path, next_event.file_path)
+        build_log.info("changes from pipeline %s to pipeline%s:\n%s", prev_event.bundle, next_event.bundle, diff)
         if pipeline_run_file:
-            migrate.migrate_with_dsl(migrate.generate_dsl(migrate.convert_difference(proc.stdout)), pipeline_run_file)
+            migrate.migrate_with_dsl(migrate.generate_dsl(migrate.convert_difference(diff)), pipeline_run_file)
         i += 1
 
 
