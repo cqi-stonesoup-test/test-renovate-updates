@@ -147,7 +147,10 @@ def fetch_pipeline_from_bundle(bundle: str, dest_dir: str) -> str:
             members = tar.getmembers()
             if len(members) > 1:
                 raise ValueError(f"Multiple members in pipeline bundle {bundle}")
-            pl_content = tar.extractfile(members[0]).read().decode("utf-8")
+            reader = tar.extractfile(members[0])
+            if reader is None:
+                raise ValueError(f"Member {members[0].name} is not a regular file.")
+            pl_content = reader.read().decode("utf-8")
             pipeline_file.write_text(pl_content)
     finally:
         os.unlink(temp_blob_file)
@@ -259,16 +262,15 @@ def migrate_update(from_task_bundle: str, to_task_bundle: str, defs_temp_dir: st
     history_len = len(events)
     if history_len < 2:
         return
-    events.reverse()  # FIXME: call builtin reverse function instead
-    i = 1
-    while i < history_len:
-        prev_event = events[i - 1]
-        next_event = events[i]
-        diff = compare_pipelines(prev_event.file_path, next_event.file_path)
-        build_log.info("changes from pipeline %s to pipeline%s:\n%s", prev_event.bundle, next_event.bundle, diff)
+    from_idx = history_len - 1
+    while from_idx > 0:
+        from_event = events[from_idx]
+        to_event = events[from_idx - 1]
+        diff = compare_pipelines(from_event.file_path, to_event.file_path)
+        build_log.info("changes from pipeline %s to pipeline%s:\n%s", from_event.bundle, to_event.bundle, diff)
         if pipeline_run_file:
             migrate.migrate_with_dsl(migrate.generate_dsl(migrate.convert_difference(diff)), pipeline_run_file)
-        i += 1
+        from_idx -= 1
 
 
 def main():
