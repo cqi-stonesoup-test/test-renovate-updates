@@ -24,6 +24,10 @@ build_log = logging.getLogger("build.log")
 build_log.setLevel(logging.DEBUG)
 
 
+# Example:  0.1-18a61693389c6c912df587f31bc3b4cc53eb0d5b
+TASK_TAG_REGEXP: Final = r"^[0-9.]+-[0-9a-f]+$"
+
+
 @dataclass
 class PipelineEvent:
     bundle: str
@@ -56,10 +60,6 @@ def parse_image_reference(image_ref: str) -> ImageReference:
     if image_repo.count("/") > 1:
         registry, repo = image_repo.split("/", 1)
     return ImageReference(registry=registry, repository=repo, tag=tag, digest=digest)
-
-
-# Example:  0.1-18a61693389c6c912df587f31bc3b4cc53eb0d5b
-TASK_TAG_REGEXP: Final = r"^[0-9.]+-[0-9a-f]+$"
 
 
 def find_pipeline(task_bundle: ImageReference) -> str:
