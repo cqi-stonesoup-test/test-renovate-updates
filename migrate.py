@@ -13,7 +13,7 @@ from ruamel.yaml import YAML
 from fn import append, apply, delete_if, delete_key, with_path, if_matches, nth
 
 # {yaml path => {action => details}}
-DifferencesT = dict[dict[str, str]]
+DifferencesT = dict[str, dict[str, str]]
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(levelname)s:%(name)s:%(asctime)s:%(message)s"
