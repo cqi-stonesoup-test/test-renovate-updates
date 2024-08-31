@@ -12,6 +12,8 @@ from pathlib import Path
 from urllib.request import urlopen
 from collections.abc import Iterator
 
+import migrate
+
 PIPELINE_BUNDLE_REPO: Final = "quay.io/mytestworkload/test-renovate-updates-pipeline"
 
 logging.basicConfig(level=logging.DEBUG)
@@ -158,7 +160,7 @@ def pipeline_history(from_task_bundle: str, to_task_bundle: str, store_dir: str)
     return history
 
 
-def migrate_update(from_task_bundle: str, to_task_bundle: str, defs_temp_dir: str) -> None:
+def migrate_update(from_task_bundle: str, to_task_bundle: str, defs_temp_dir: str, pipeline_run_file: str = "") -> None:
     # FIXME: all supported pipelines must be handled.
     #
     # Currently, there is no way to know which supported pipeline is based on,
@@ -172,14 +174,16 @@ def migrate_update(from_task_bundle: str, to_task_bundle: str, defs_temp_dir: st
     history_len = len(events)
     if history_len < 2:
         return
-    events.reverse()
+    events.reverse()  # FIXME: call builtin reverse function instead
     i = 1
     while i < history_len:
         prev_event = events[i-1]
         next_event = events[i]
-        compare_cmd = ["dyff", "between", "--omit-header", "--no-table-style", prev_event.file_path, next_event.file_path]
+        compare_cmd = ["dyff", "between", "--omit-header", "--detect-kubernetes", "--no-table-style", prev_event.file_path, next_event.file_path]
         proc = subprocess.run(compare_cmd, check=True, capture_output=True, text=True)
         build_log.info("changes from pipeline %s to pipeline%s:\n%s", prev_event.bundle, next_event.bundle, proc.stdout)
+        if pipeline_run_file:
+            migrate.migrate_with_dsl(migrate.generate_dsl(migrate.convert_difference(proc.stdout)), pipeline_run_file)
         i += 1
 
 
@@ -188,6 +192,7 @@ def main():
     parser.add_argument("-f", "--from-task-bundle", required=True, metavar="IMAGE_REF")
     parser.add_argument("-t", "--to-task-bundle", required=True, metavar="IMAGE_REF")
     parser.add_argument("-l", "--log-file", metavar="PATH", default="run.log", help="Build log file. Defaults to %(default)s")
+    parser.add_argument("-p", "--pipeline-run", metavar="PATH", dest="pipeline_run_file", default="", help="Update pipeline for this PipelineRun.")
 
     args = parser.parse_args()
 
@@ -219,7 +224,7 @@ def main():
     if not os.path.exists(defs_temp_dir):
         os.makedirs(os.path.join("definitions", "temp"))
 
-    migrate_update(args.from_task_bundle, args.to_task_bundle, defs_temp_dir)
+    migrate_update(args.from_task_bundle, args.to_task_bundle, defs_temp_dir, args.pipeline_run_file)
 
 
 if __name__ == "__main__":

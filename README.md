@@ -9,7 +9,7 @@ export TEST_REPO=cqi-stonesoup-test/test-renovate-updates
 renovate --token "$GH_TOKEN" "$TEST_REPO" 2>&1 >renovate.log
 ```
 
-## scenarios
+## Scenarios
 
 Show pipelines changes for fictional task update and `init` task itself:
 
