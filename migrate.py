@@ -1,4 +1,3 @@
-import argparse
 import io
 import json
 import logging
@@ -188,6 +187,8 @@ def migrate_with_dsl(migrations: list[Callable], pipeline_file: str) -> None:
     with open(pipeline_file, "r", encoding="utf-8") as f:
         origin_pipeline = yaml.load(f)
 
+    pipeline = None
+
     # TODO: extract this pipeline resolution
     match origin_pipeline["kind"]:
         case "Pipeline":
@@ -210,6 +211,10 @@ def migrate_with_dsl(migrations: list[Callable], pipeline_file: str) -> None:
                     raise ValueError("Unknown pipelineRef section")
             else:
                 raise ValueError("PipelineRun .spec field includes neither .pipelineSpec nor .pipelineRef field.")
+
+    if not pipeline:
+        logger.info("No pipeline is resolved for migration.")
+        return
 
     for migration in migrations:
         logger.debug("applying migration: %r", migration)
