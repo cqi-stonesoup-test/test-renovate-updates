@@ -12,53 +12,53 @@ metadata:
 spec:
   pipelineSpec:
     tasks:
-      - name: test-renovate-updates
+    - name: test-renovate-updates
+      params:
+      - name: image-url
+        value: quay.io/mytestworkload/test-renovate-updates:0.1
+      - name: rebuild
+        value: "false"
+      taskRef:
         params:
-          - name: image-url
-            value: quay.io/mytestworkload/test-renovate-updates:0.1
-          - name: rebuild
-            value: "false"
-        taskRef:
-          params:
-            - name: name
-              value: init
-            - name: bundle
-              value: quay.io/mytestworkload/test-renovate-updates-utils:0.1@sha256:3570ac367c2b47a38dc82b7fecb2bb814a057249e7de485478722b4dd8b0b15b
-            - name: kind
-              value: task
-          resolver: bundles
+        - name: name
+          value: init
+        - name: bundle
+          value: quay.io/mytestworkload/test-renovate-updates-utils:0.1@sha256:3570ac367c2b47a38dc82b7fecb2bb814a057249e7de485478722b4dd8b0b15b
+        - name: kind
+          value: task
+        resolver: bundles
 
-      - name: init
-        taskRef:
-          resolver: bundles
-          params:
-            - name: name
-              value: init
-            - name: bundle
-              value: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:00e467c83c0188130134e0581bdd1d74fa3657ac1cef96345d92d50f9c96e3b0
-            - name: kind
-              value: task
-      - name: clone
-        taskRef:
-          resolver: bundles
-          params:
-            - name: name
-              value: clone
-            - name: bundle
-              value: quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:f0d2eb9755d6bd4cdce1bd0cd5efb603ac4933a86c1d2e07d29807d17c847932
-            - name: kind
-              value: task
-        runAfter:
-          - init
-      - name: test
-        taskRef:
-          resolver: bundles
-          params:
-            - name: name
-              value: test
-            - name: bundle
-              value: quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:3380f0e54f113875c876723a76a30e36cf0786d24c4757e851b575ae8caaabf1
-            - name: kind
-              value: task
-        runAfter:
-          - clone
+    - name: init
+      taskRef:
+        resolver: bundles
+        params:
+        - name: name
+          value: init
+        - name: bundle
+          value: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:00e467c83c0188130134e0581bdd1d74fa3657ac1cef96345d92d50f9c96e3b0
+        - name: kind
+          value: task
+    - name: clone
+      taskRef:
+        resolver: bundles
+        params:
+        - name: name
+          value: clone
+        - name: bundle
+          value: quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:f0d2eb9755d6bd4cdce1bd0cd5efb603ac4933a86c1d2e07d29807d17c847932
+        - name: kind
+          value: task
+      runAfter:
+      - init
+    - name: test
+      taskRef:
+        resolver: bundles
+        params:
+        - name: name
+          value: test
+        - name: bundle
+          value: quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:3380f0e54f113875c876723a76a30e36cf0786d24c4757e851b575ae8caaabf1
+        - name: kind
+          value: task
+      runAfter:
+      - clone
