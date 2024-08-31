@@ -241,6 +241,8 @@ def compare_pipelines(from_pipeline: str, to_pipeline: str) -> str:
         "--omit-header",
         "--detect-kubernetes",
         "--no-table-style",
+        "--exclude-regexp",
+        "/spec/tasks/name=.+/taskRef/params/name=.+/value",
         from_pipeline,
         to_pipeline,
     ]
@@ -267,9 +269,16 @@ def migrate_update(from_task_bundle: str, to_task_bundle: str, defs_temp_dir: st
         from_event = events[from_idx]
         to_event = events[from_idx - 1]
         diff = compare_pipelines(from_event.file_path, to_event.file_path)
-        build_log.info("changes from pipeline %s to pipeline%s:\n%s", from_event.bundle, to_event.bundle, diff)
-        if pipeline_run_file:
-            migrate.migrate_with_dsl(migrate.generate_dsl(migrate.convert_difference(diff)), pipeline_run_file)
+        if diff == "\n":
+            build_log.info(
+                "changes from pipeline %s to pipeline%s: no change except task bundle update",
+                from_event.bundle,
+                to_event.bundle,
+            )
+        else:
+            build_log.info("changes from pipeline %s to pipeline%s:\n%s", from_event.bundle, to_event.bundle, diff)
+            if pipeline_run_file:
+                migrate.migrate_with_dsl(migrate.generate_dsl(migrate.convert_difference(diff)), pipeline_run_file)
         from_idx -= 1
 
 
