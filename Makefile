@@ -56,3 +56,21 @@ add-new-task:
 	yq -i '.metadata.name = "$(NEW_TASK_NAME)"' $(NEW_TASK_FILE)
 	yq -i '.spec.steps[0].name = "$(NEW_TASK_NAME)"' $(NEW_TASK_FILE)
 	yq -i '.spec.tasks += {"name": "$(NEW_TASK_NAME)", "taskRef": {"name": "$(NEW_TASK_NAME)"}, "runAfter": ["init"]}' ./definitions/pipeline-0.1.yaml
+
+
+LINE_LENGTH ?= 120
+PY_SCRIPTS = migration-tool.py migrate.py
+
+
+.PHONY: code/format
+code/format:
+	@python3 -m black --line-length $(LINE_LENGTH) $(PY_SCRIPTS)
+
+
+.PHONY: code/flake8
+code/flake8:
+	@python3 -m flake8 --max-line-length $(LINE_LENGTH) $(PY_SCRIPTS)
+
+
+.PHONY: code/check
+code/check: code/format code/flake8

@@ -65,7 +65,7 @@ def parse_image_reference(image_ref: str) -> ImageReference:
 def find_pipeline(task_bundle: ImageReference) -> str:
     """Find pipeline that contains the given task bundle"""
     if not task_bundle.tag:
-        raise ValueError(f"Tag is empty. Requiring a tag in form version-revision, e.g. 0.1-12345")
+        raise ValueError("Tag is empty. Requiring a tag in form version-revision, e.g. 0.1-12345")
     _, revision = task_bundle.tag.rsplit("-", 1)
     return f"{PIPELINE_BUNDLE_REPO}:{revision}"
 
@@ -158,7 +158,15 @@ def pipeline_history(from_task_bundle: str, to_task_bundle: str, store_dir: str)
 
 def compare_pipelines(from_pipeline: str, to_pipeline: str) -> str:
     """Compare two pipelines"""
-    compare_cmd = ["dyff", "between", "--omit-header", "--detect-kubernetes", "--no-table-style", from_pipeline, to_pipeline]
+    compare_cmd = [
+        "dyff",
+        "between",
+        "--omit-header",
+        "--detect-kubernetes",
+        "--no-table-style",
+        from_pipeline,
+        to_pipeline,
+    ]
     proc = subprocess.run(compare_cmd, check=True, capture_output=True, text=True)
     return proc.stdout
 
@@ -180,7 +188,7 @@ def migrate_update(from_task_bundle: str, to_task_bundle: str, defs_temp_dir: st
     events.reverse()  # FIXME: call builtin reverse function instead
     i = 1
     while i < history_len:
-        prev_event = events[i-1]
+        prev_event = events[i - 1]
         next_event = events[i]
         diff = compare_pipelines(prev_event.file_path, next_event.file_path)
         build_log.info("changes from pipeline %s to pipeline%s:\n%s", prev_event.bundle, next_event.bundle, diff)
@@ -193,8 +201,17 @@ def main():
     parser = argparse.ArgumentParser(description="Konflux Pipeline Migration Tool")
     parser.add_argument("-f", "--from-task-bundle", required=True, metavar="IMAGE_REF")
     parser.add_argument("-t", "--to-task-bundle", required=True, metavar="IMAGE_REF")
-    parser.add_argument("-l", "--log-file", metavar="PATH", default="run.log", help="Build log file. Defaults to %(default)s")
-    parser.add_argument("-p", "--pipeline-run", metavar="PATH", dest="pipeline_run_file", default="", help="Update pipeline for this PipelineRun.")
+    parser.add_argument(
+        "-l", "--log-file", metavar="PATH", default="run.log", help="Build log file. Defaults to %(default)s"
+    )
+    parser.add_argument(
+        "-p",
+        "--pipeline-run",
+        metavar="PATH",
+        dest="pipeline_run_file",
+        default="",
+        help="Update pipeline for this PipelineRun.",
+    )
 
     args = parser.parse_args()
 

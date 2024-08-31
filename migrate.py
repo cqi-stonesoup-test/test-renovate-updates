@@ -14,9 +14,7 @@ from fn import append, apply, delete_if, delete_key, with_path, if_matches, nth
 # {yaml path => {action => details}}
 DifferencesT = dict[str, dict[str, str]]
 
-logging.basicConfig(
-    level=logging.DEBUG, format="%(levelname)s:%(name)s:%(asctime)s:%(message)s"
-)
+logging.basicConfig(level=logging.DEBUG, format="%(levelname)s:%(name)s:%(asctime)s:%(message)s")
 logger = logging.getLogger("migration")
 
 OP_ADDED: Final = "added"
@@ -206,7 +204,7 @@ def migrate_with_dsl(migrations: list[Callable], pipeline_file: str) -> None:
                         pipeline = create_yaml_obj().load(f)
                 elif "bundle" in pipeline_ref:
                     # TODO: resolve and read pipeline
-                    raise NotImplemented("read pipeline referenced by git-resolver")
+                    raise NotImplementedError("read pipeline referenced by git-resolver")
                 else:
                     raise ValueError("Unknown pipelineRef section")
             else:
