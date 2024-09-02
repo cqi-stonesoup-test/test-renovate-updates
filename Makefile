@@ -55,7 +55,9 @@ add-new-task:
 	cp ./definitions/task-clone-0.1.yaml $(NEW_TASK_FILE)
 	yq -i '.metadata.name = "$(NEW_TASK_NAME)"' $(NEW_TASK_FILE)
 	yq -i '.spec.steps[0].name = "$(NEW_TASK_NAME)"' $(NEW_TASK_FILE)
-	yq -i '.spec.tasks += {"name": "$(NEW_TASK_NAME)", "taskRef": {"name": "$(NEW_TASK_NAME)"}, "runAfter": ["init"]}' ./definitions/pipeline-0.1.yaml
+	yq -i '.spec.tasks += {"name": "$(NEW_TASK_NAME)", "taskRef": {"name": "$(NEW_TASK_NAME)"}, "runAfter": ["init"]}' \
+		./definitions/pipeline-0.1.yaml
+	git add $(NEW_TASK_FILE) ./definitions/pipeline-0.1.yaml
 
 
 LINE_LENGTH ?= 120
