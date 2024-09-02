@@ -10,6 +10,8 @@ make run/renovate
 
 ## Scenarios
 
+Task `init` is selected as the one to be changed for fictional update.
+
 Show pipelines changes for fictional task update and `init` task itself:
 
 ```bash
