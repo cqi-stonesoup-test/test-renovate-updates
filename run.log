@@ -148,3 +148,51 @@ spec.tasks
   
 
 
+Doing migration for task update:
+from: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:1050ff3ec52a04db920917a9cc4ec01c56d69f7986bc49936206ef56585a7cff
+to: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:9eeaf7780f3c0414e0263c4dca9fe91bba39b89a0ff19b967d9fe52ace8f5341
+inspect image: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:9eeaf7780f3c0414e0263c4dca9fe91bba39b89a0ff19b967d9fe52ace8f5341
+changes from pipeline quay.io/mytestworkload/test-renovate-updates-pipeline:183fa29bc24e0d1720d2b8d7cc774d6035db350c to pipelinequay.io/mytestworkload/test-renovate-updates-pipeline:24a1b8cdb8d4d97fef3249e9dc7912181c418bc9:
+
+spec.tasks
+  - three list entries removed:
+    - name: buildimage
+      runAfter:
+      - test
+      taskRef:
+        params:
+        - name: name
+          value: buildimage
+        - name: bundle
+          value: "quay.io/mytestworkload/test-renovate-updates-task-buildimage:0.1@sha256:d30a978b4c90f526c1884c2351f15f385e8609247de2900608418498b53604d4"
+        - name: kind
+          value: task
+        resolver: bundles
+    - name: scanimage
+      runAfter:
+      - buildimage
+      taskRef:
+        params:
+        - name: name
+          value: scanimage
+        - name: bundle
+          value: "quay.io/mytestworkload/test-renovate-updates-task-scanimage:0.1@sha256:7ba3cf5331c5a8df38b69e74f1231896b79b17a693d6399c90875da530fa6015"
+        - name: kind
+          value: task
+        resolver: bundles
+    - name: pushimage
+      runAfter:
+      - scanimage
+      taskRef:
+        params:
+        - name: name
+          value: pushimage
+        - name: bundle
+          value: "quay.io/mytestworkload/test-renovate-updates-task-pushimage:0.1@sha256:c932e64277ab25c2512ac811aa923fc1f60e94065f93caf4f3c5e578bb188896"
+        - name: kind
+          value: task
+        resolver: bundles
+    
+  
+
+
