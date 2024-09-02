@@ -24,6 +24,9 @@ spec:
     - name: test
       taskRef:
         name: test
+      params:
+        - name: test_runner
+          value: pytest
       runAfter:
         - clone
     - name: coverage

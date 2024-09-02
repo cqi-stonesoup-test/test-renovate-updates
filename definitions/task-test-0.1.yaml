@@ -8,6 +8,11 @@ metadata:
   annotations:
     tekton.dev/pipelines.minVersion: "0.12.1"
 spec:
+  params:
+    - name: test_runner
+      description: Test runner
+      type: string
+      default: pytest
   steps:
     - name: unittest
       image: registry.fedoraproject.org/fedora-minimal:40
