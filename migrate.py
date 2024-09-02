@@ -120,6 +120,12 @@ def match_name_value(name: str, value: str) -> Callable:
     return _match
 
 
+def eq(target_obj):
+    def _inner(o):
+        return o == target_obj
+    return _inner
+
+
 def generate_dsl(differences: DifferencesT):
     """Generate DSL"""
     # Each callable object represents the DSL operations for a specific path.
@@ -153,7 +159,7 @@ def generate_dsl(differences: DifferencesT):
                         if op == OP_ADDED:
                             fns.append(append(detail_item))
                         elif op == OP_REMOVED:
-                            fns.append(delete_if(match_name_value(**detail_item)))
+                            fns.append(delete_if(eq(detail_item)))
                 elif type_ == FIELD_TYPE_MAP:
                     maps = load_map_details(detail)
                     if op == OP_ADDED:
