@@ -124,3 +124,27 @@ spec.tasks.init
 
 
 changes from pipeline quay.io/mytestworkload/test-renovate-updates-pipeline:1c369fdd211407829c7925d6a77ffda40c818ae6 to pipelinequay.io/mytestworkload/test-renovate-updates-pipeline:60d8eb16495c485fa04345449b3f18f1946e8350: no change except task bundle update
+Doing migration for task update:
+from: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:e765c658006151cd7393e91d740841f733c1818986e3d21cf4c6e381b10c9393
+to: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:1050ff3ec52a04db920917a9cc4ec01c56d69f7986bc49936206ef56585a7cff
+inspect image: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:1050ff3ec52a04db920917a9cc4ec01c56d69f7986bc49936206ef56585a7cff
+changes from pipeline quay.io/mytestworkload/test-renovate-updates-pipeline:60d8eb16495c485fa04345449b3f18f1946e8350 to pipelinequay.io/mytestworkload/test-renovate-updates-pipeline:183fa29bc24e0d1720d2b8d7cc774d6035db350c:
+
+spec.tasks
+  + one list entry added:
+    - name: pushdockerfile
+      runAfter:
+      - init
+      taskRef:
+        params:
+        - name: name
+          value: pushdockerfile
+        - name: bundle
+          value: "quay.io/mytestworkload/test-renovate-updates-task-pushdockerfile:0.1@sha256:6a086aab8a87a03c9590c8b48df188ec7c391cc892fe1ac5db7459c63eb2d1a5"
+        - name: kind
+          value: task
+        resolver: bundles
+    
+  
+
+
