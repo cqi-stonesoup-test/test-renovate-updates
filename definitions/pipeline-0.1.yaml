@@ -47,6 +47,9 @@ spec:
       runAfter:
         - buildimage
     - name: pushimage
+      params:
+        - name: image-url
+          value: $(tasks.buildimage.results.IMAGE_URL)
       taskRef:
         name: pushimage
       runAfter:
