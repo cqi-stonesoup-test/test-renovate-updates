@@ -26,34 +26,6 @@ spec:
         name: test
       runAfter:
         - clone
-    - name: coverage
-      taskRef:
-        name: coverage
-      runAfter:
-        - clone
-    - name: lint
-      taskRef:
-        name: lint
-      runAfter:
-        - test
-    - name: buildimage
-      taskRef:
-        name: buildimage
-      runAfter:
-        - test
-    - name: scanimage
-      taskRef:
-        name: scanimage
-      runAfter:
-        - buildimage
-    - name: pushimage
-      params:
-        - name: image-url
-          value: $(tasks.buildimage.results.IMAGE_URL)
-      taskRef:
-        name: pushimage
-      runAfter:
-        - scanimage
     - name: pushdockerfile
       taskRef:
         name: pushdockerfile
