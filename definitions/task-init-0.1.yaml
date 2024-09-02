@@ -3,7 +3,7 @@ kind: Task
 metadata:
   name: init
   labels:
-    app.kubernetes.io/version: "0.13"
+    app.kubernetes.io/version: "0.14"
     build.appstudio.redhat.com/build_type: "docker"
   annotations:
     tekton.dev/pipelines.minVersion: "0.12.1"

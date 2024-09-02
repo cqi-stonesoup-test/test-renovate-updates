@@ -26,6 +26,16 @@ spec:
         name: test
       runAfter:
         - clone
+    - name: coverage
+      taskRef:
+        name: coverage
+      runAfter:
+        - clone
+    - name: lint
+      taskRef:
+        name: lint
+      runAfter:
+        - test
     - name: pushdockerfile
       taskRef:
         name: pushdockerfile
