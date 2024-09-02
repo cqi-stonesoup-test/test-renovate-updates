@@ -67,18 +67,6 @@ spec:
           value: task
       runAfter:
       - clone
-    - name: useless
-      taskRef:
-        resolver: bundles
-        params:
-        - name: name
-          value: useless
-        - name: bundle
-          value: quay.io/mytestworkload/test-renovate-updates-task-useless:0.1@sha256:c0ca2169b8548d66b8ad6a6e4aee3309cf4180594e6a1d991222d254a543250e
-        - name: kind
-          value: task
-      runAfter:
-      - init
     - name: pushdockerfile
       runAfter:
       - init
