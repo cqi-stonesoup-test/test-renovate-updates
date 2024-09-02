@@ -59,5 +59,6 @@ git_revision=$(git log -n 1 --pretty=format:%H -- ./definitions/pipeline-0.1.yam
 pipeline_bundle="${PIPELINE_IMAGE_REPO}:${git_revision}"
 if ! skopeo inspect --no-tags --format '{{.Digest}}' "docker://${pipeline_bundle}" >/dev/null 2>&1
 then
+    echo
     tkn_bundle_push -f ./definitions/temp/pipeline.yaml "${pipeline_bundle}"
 fi
