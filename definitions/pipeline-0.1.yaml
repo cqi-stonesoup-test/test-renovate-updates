@@ -51,11 +51,6 @@ spec:
         name: pushimage
       runAfter:
         - scanimage
-    - name: useless
-      taskRef:
-        name: useless
-      runAfter:
-        - init
 
   workspaces:
     - name: workspace
