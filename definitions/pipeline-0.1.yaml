@@ -51,6 +51,10 @@ spec:
         name: pushimage
       runAfter:
         - scanimage
-
+    - name: pushdockerfile
+      taskRef:
+        name: pushdockerfile
+      runAfter:
+        - init
   workspaces:
     - name: workspace
