@@ -35,9 +35,14 @@ spec:
         - name: name
           value: init
         - name: bundle
-          value: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:00e467c83c0188130134e0581bdd1d74fa3657ac1cef96345d92d50f9c96e3b0
+          value: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:e765c658006151cd7393e91d740841f733c1818986e3d21cf4c6e381b10c9393
         - name: kind
           value: task
+      params:
+      - name: image-url
+        value: "quay.io/mytesetworkload/test-renovate-updates-utils:devel"
+      - name: skip-checks
+        value: "false"
     - name: clone
       taskRef:
         resolver: bundles
@@ -74,3 +79,5 @@ spec:
           value: task
       runAfter:
       - init
+    workspaces:
+    - name: workspace
