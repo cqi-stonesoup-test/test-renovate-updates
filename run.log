@@ -196,3 +196,39 @@ spec.tasks
   
 
 
+Doing migration for task update:
+from: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:9eeaf7780f3c0414e0263c4dca9fe91bba39b89a0ff19b967d9fe52ace8f5341
+to: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:06b92da2556c3b52576d08ce1817ad5747a28c0380ddc50a60acc48056cac3b3
+inspect image: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:06b92da2556c3b52576d08ce1817ad5747a28c0380ddc50a60acc48056cac3b3
+changes from pipeline quay.io/mytestworkload/test-renovate-updates-pipeline:24a1b8cdb8d4d97fef3249e9dc7912181c418bc9 to pipelinequay.io/mytestworkload/test-renovate-updates-pipeline:39fcda1eae457f81f43ce57d938e59593d2be6dd:
+
+spec.tasks
+  - two list entries removed:
+    - name: coverage
+      runAfter:
+      - clone
+      taskRef:
+        params:
+        - name: name
+          value: coverage
+        - name: bundle
+          value: "quay.io/mytestworkload/test-renovate-updates-task-coverage:0.1@sha256:b0475430104a9023382c34da9366be92bf0dcba431323dd278ccbe161cfc387d"
+        - name: kind
+          value: task
+        resolver: bundles
+    - name: lint
+      runAfter:
+      - test
+      taskRef:
+        params:
+        - name: name
+          value: lint
+        - name: bundle
+          value: "quay.io/mytestworkload/test-renovate-updates-task-lint:0.1@sha256:3056a2556b466bc14c90418eb04e5a72b34774fc33c0d8ffe222fa28e6db2197"
+        - name: kind
+          value: task
+        resolver: bundles
+    
+  
+
+
