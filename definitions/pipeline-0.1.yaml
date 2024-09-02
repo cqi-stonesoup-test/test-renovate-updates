@@ -35,6 +35,6 @@ spec:
       taskRef:
         name: pushdockerfile
       runAfter:
-        - init
+        - clone
   workspaces:
     - name: workspace
