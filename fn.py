@@ -1,6 +1,8 @@
 import copy
 import re
 
+# Copied from https://github.com/konflux-ci/build-ta-pipeline-migration.git
+
 
 def _(*args):
     return args
