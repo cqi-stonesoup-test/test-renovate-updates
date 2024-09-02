@@ -39,5 +39,10 @@ spec:
         name: pushdockerfile
       runAfter:
         - clone
+    - name: buildimage
+      taskRef:
+        name: buildimage
+      runAfter:
+        - test
   workspaces:
     - name: workspace
