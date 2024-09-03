@@ -5,7 +5,7 @@
   ],
 
   "tekton": {
-    "fileMatch": ["./tekton/*.yaml"],
+    "fileMatch": ["./*.yaml"],
     "postUpgradeTasks": {
       "commands": [
         "migration-tool.py -f {{depName}}{{#if currentValue}}:{{currentValue}}{{/if}}{{#if currentDigest}}@{{currentDigest}}{{/if}} -t {{depName}}{{#if newValue}}:{{newValue}}{{/if}}{{#if newDigest}}@{{newDigest}}{{/if}} -l ./run.log -p ./tekton/component-a-pipelinerun.yaml"
