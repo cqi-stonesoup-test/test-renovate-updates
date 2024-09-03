@@ -27,3 +27,13 @@ spec:
         value: "quay.io/mytesetworkload/test-renovate-updates-utils:devel"
       - name: skip-checks
         value: "false"
+    - name: clone
+      taskRef:
+        resolver: bundles
+        params:
+        - name: name
+          value: clone
+        - name: bundle
+          value: quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:5c37db771ac8bcd75dbff9b8922e2e57d534030770ca88cdfed822694ea30931
+        - name: kind
+          value: task
