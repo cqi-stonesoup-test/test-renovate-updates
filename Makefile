@@ -48,16 +48,16 @@ build/and/push:
 	./build-and-push.sh
 
 NEW_TASK_NAME ?= newtask
-NEW_TASK_FILE = ./definitions/task-$(NEW_TASK_NAME)-0.1.yaml
+NEW_TASK_FILE = ./tasks/task-$(NEW_TASK_NAME)-0.1.yaml
 
 .PHONY: add-new-task
 add-new-task:
-	cp ./definitions/task-clone-0.1.yaml $(NEW_TASK_FILE)
+	cp ./tasks/task-init-0.1.yaml $(NEW_TASK_FILE)
 	yq -i '.metadata.name = "$(NEW_TASK_NAME)"' $(NEW_TASK_FILE)
 	yq -i '.spec.steps[0].name = "$(NEW_TASK_NAME)"' $(NEW_TASK_FILE)
 	yq -i '.spec.tasks += {"name": "$(NEW_TASK_NAME)", "taskRef": {"name": "$(NEW_TASK_NAME)"}, "runAfter": ["init"]}' \
-		./definitions/pipeline-0.1.yaml
-	git add $(NEW_TASK_FILE) ./definitions/pipeline-0.1.yaml
+		./pipelines/pipeline-0.1.yaml
+	git add $(NEW_TASK_FILE) ./pipelines/pipeline-0.1.yaml
 
 
 LINE_LENGTH ?= 120
@@ -82,7 +82,7 @@ code/check: code/format code/flake8 code/tests
 .PHONY: utils/list-tasks
 utils/list-tasks:
 	yq '.spec.pipelineSpec.tasks[].name' pipelinerun.yaml | cat -n
-	yq '.spec.tasks[].name' ./definitions/pipeline-0.1.yaml | cat -n
+	yq '.spec.tasks[].name' ./pipelines/pipeline-0.1.yaml | cat -n
 
 .PHONY: utils/list-image-tag-digest-paires
 utils/list-image-tag-digest-paires:
