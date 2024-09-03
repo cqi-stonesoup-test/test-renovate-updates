@@ -1,0 +1,29 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  annotations:
+    build.appstudio.openshift.io/repo: https://github.com/cqi-stonesoup-test/test-renovate-updates?rev={{revision}}
+  labels:
+    appstudio.openshift.io/application: test-renovate-updates
+    appstudio.openshift.io/component: test-renovate-updates
+    pipelines.appstudio.openshift.io/type: build
+  name: build-something
+  namespace: cqi-tenant
+spec:
+  pipelineSpec:
+    tasks:
+    - name: init
+      taskRef:
+        resolver: bundles
+        params:
+        - name: name
+          value: init
+        - name: bundle
+          value: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:c510678ed7e90f0943b311d79d18f50efd514ea3734e6d98a72a4c5bb5fcd9e9
+        - name: kind
+          value: task
+      params:
+      - name: image-url
+        value: "quay.io/mytesetworkload/test-renovate-updates-utils:devel"
+      - name: skip-checks
+        value: "false"
