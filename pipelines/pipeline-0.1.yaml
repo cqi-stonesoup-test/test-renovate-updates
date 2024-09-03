@@ -25,8 +25,5 @@ spec:
       taskRef:
         name: clone
     - name: test
-      params:
-        - name: test_runner
-          value: pytest
       taskRef:
         name: test
