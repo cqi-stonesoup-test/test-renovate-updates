@@ -324,9 +324,9 @@ def main():
 
     # find out the corresponding pipeline bundle
 
-    defs_temp_dir = os.path.join(os.getcwd(), "definitions", "temp")
+    defs_temp_dir = os.path.join(os.getcwd(), "pipelines", "temp")
     if not os.path.exists(defs_temp_dir):
-        os.makedirs(os.path.join("definitions", "temp"))
+        os.makedirs(os.path.join("pipelines", "temp"))
 
     migrate_update(args.from_task_bundle, args.to_task_bundle, defs_temp_dir, args.pipeline_run_file)
 
