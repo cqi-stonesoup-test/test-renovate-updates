@@ -9,6 +9,9 @@ metadata:
     tekton.dev/pipelines.minVersion: "0.12.1"
 spec:
   params:
+    - name: url
+      description: Repository URL to clone from.
+      type: string
     - name: revision
       description: Revision to checkout.
       type: string
@@ -17,4 +20,4 @@ spec:
     - name: clone
       image: registry.fedoraproject.org/fedora-minimal:40
       script: |
-        echo clone source from revision $(params.revision)
+        echo clone source from $(params.url) at revision $(params.revision)

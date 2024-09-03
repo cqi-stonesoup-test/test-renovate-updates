@@ -18,6 +18,8 @@ spec:
         name: init
     - name: clone
       params:
+        - name: url
+          value: https://github.com/cqi-stonesoup-test/test-renovate-updates.git
         - name: revision
           value: develop
       taskRef:
