@@ -305,3 +305,25 @@ spec.tasks
   
 
 
+Doing migration for task update:
+from: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:3104dbb98ddf53193223565766213fd2d1e2f4cb86b78acfcd7f2e7218695573
+to: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:ee3b81104f7c3d5453bab13d3255fe0bc102b6421aea1c5fea5fec0a4b8a9e9e
+inspect image: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:ee3b81104f7c3d5453bab13d3255fe0bc102b6421aea1c5fea5fec0a4b8a9e9e
+changes from pipeline quay.io/mytestworkload/test-renovate-updates-pipeline:c39b957d7d009a60293c606e39783e9fe5765e92 to pipelinequay.io/mytestworkload/test-renovate-updates-pipeline:245189c646a9d16cb19e8cde8d0e4acc928ad404:
+
+spec.tasks
+  + one list entry added:
+    - name: test
+      taskRef:
+        params:
+        - name: name
+          value: test
+        - name: bundle
+          value: "quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:a45c49a148149e9d648be9c4c7e8a514b22b2338ddfda0868294311f57907503"
+        - name: kind
+          value: task
+        resolver: bundles
+    
+  
+
+
