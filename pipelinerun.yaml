@@ -37,5 +37,15 @@ spec:
           value: quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:f0d2eb9755d6bd4cdce1bd0cd5efb603ac4933a86c1d2e07d29807d17c847932
         - name: kind
           value: task
+    - name: test
+      taskRef:
+        resolver: bundles
+        params:
+        - name: name
+          value: test
+        - name: bundle
+          value: quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:5338e15072035d6c24c4808d5df572805b93dbc80ec8f9da4f2a43e349ef5732
+        - name: kind
+          value: task
     workspaces:
     - name: workspace
