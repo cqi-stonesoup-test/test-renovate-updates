@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-find ./definitions/ -maxdepth 1 -name "task-*.yaml" | \
+find ./tasks -maxdepth 1 -name "task-*.yaml" | \
 while read -r task_file
 do
     filename="$(basename "$task_file")"
