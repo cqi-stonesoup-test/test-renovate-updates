@@ -21,6 +21,9 @@ spec:
         name: clone
       runAfter:
         - init
+      params:
+        - name: revision
+          value: main
     - name: test
       taskRef:
         name: test
