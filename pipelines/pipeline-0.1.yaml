@@ -16,23 +16,3 @@ spec:
           value: "false"
       taskRef:
         name: init
-    - name: clone
-      taskRef:
-        name: clone
-      runAfter:
-        - init
-      params:
-        - name: revision
-          value: main
-    - name: test
-      taskRef:
-        name: test
-      params:
-        - name: test_runner
-          value: pytest
-        - name: verbose
-          value: vvv
-      runAfter:
-        - clone
-  workspaces:
-    - name: workspace

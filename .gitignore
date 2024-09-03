@@ -6,6 +6,7 @@ envs
 
 venv/
 definitions/temp/
+pipelines/temp/
 __pycache__/
 shell.log
 .idea/
