@@ -30,6 +30,8 @@ spec:
       params:
         - name: test_runner
           value: pytest
+        - name: verbose
+          value: vvv
       runAfter:
         - clone
   workspaces:

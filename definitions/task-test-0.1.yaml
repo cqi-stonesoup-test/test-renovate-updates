@@ -12,7 +12,7 @@ spec:
     - name: test_runner
       description: Test runner
       type: string
-      default: pytest
+      default: ""
   steps:
     - name: unittest
       image: registry.fedoraproject.org/fedora-minimal:40
