@@ -77,3 +77,9 @@ code/tests:
 
 .PHONY: code/check
 code/check: code/format code/flake8 code/tests
+
+
+.PHONY: utils/list-tasks
+utils/list-tasks:
+	yq '.spec.pipelineSpec.tasks[].name' pipelinerun.yaml | cat -n
+	yq '.spec.tasks[].name' ./definitions/pipeline-0.1.yaml | cat -n
