@@ -17,5 +17,8 @@ spec:
       taskRef:
         name: init
     - name: clone
+      params:
+        - name: revision
+          value: develop
       taskRef:
         name: clone
