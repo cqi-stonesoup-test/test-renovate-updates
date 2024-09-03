@@ -280,3 +280,73 @@ spec.tasks
   
 
 
+Doing migration for task update:
+from: quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:f0d2eb9755d6bd4cdce1bd0cd5efb603ac4933a86c1d2e07d29807d17c847932
+to: quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:5c37db771ac8bcd75dbff9b8922e2e57d534030770ca88cdfed822694ea30931
+inspect image: quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:5c37db771ac8bcd75dbff9b8922e2e57d534030770ca88cdfed822694ea30931
+Doing migration for task update:
+from: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:2864bf45f8bbb635137c41a18e8fa3ed695239f3b2b033048e474aa2fca3d2ce
+to: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:0d80b744eaf8055584ea0d1068c748f44c700dea80f1bfb9946f36cc514d25f7
+inspect image: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:0d80b744eaf8055584ea0d1068c748f44c700dea80f1bfb9946f36cc514d25f7
+changes from pipeline quay.io/mytestworkload/test-renovate-updates-pipeline:2a5c8467fae1490ddae68073da96af588274fd03 to pipelinequay.io/mytestworkload/test-renovate-updates-pipeline:f00b48463bf8a5a1be046f126deb9b6114ee1c94:
+
+spec.tasks.clone
+  + one map entry added:
+    params:
+    - name: revision
+      value: main
+    
+  
+
+
+Doing migration for task update:
+from: quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:5338e15072035d6c24c4808d5df572805b93dbc80ec8f9da4f2a43e349ef5732
+to: quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:a45c49a148149e9d648be9c4c7e8a514b22b2338ddfda0868294311f57907503
+inspect image: quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:a45c49a148149e9d648be9c4c7e8a514b22b2338ddfda0868294311f57907503
+changes from pipeline quay.io/mytestworkload/test-renovate-updates-pipeline:b52c5a16c1459e41226789431866d31519662a27 to pipelinequay.io/mytestworkload/test-renovate-updates-pipeline:45c81923b5a4128fa4b55a3669f8a41a9876f802:
+
+spec.tasks
+  - two list entries removed:
+    - name: coverage
+      runAfter:
+      - test
+      taskRef:
+        params:
+        - name: name
+          value: coverage
+        - name: bundle
+          value: "quay.io/mytestworkload/test-renovate-updates-task-coverage:0.1@sha256:b0475430104a9023382c34da9366be92bf0dcba431323dd278ccbe161cfc387d"
+        - name: kind
+          value: task
+        resolver: bundles
+    - name: pushdockerfile
+      runAfter:
+      - clone
+      taskRef:
+        params:
+        - name: name
+          value: pushdockerfile
+        - name: bundle
+          value: "quay.io/mytestworkload/test-renovate-updates-task-pushdockerfile:0.1@sha256:6a086aab8a87a03c9590c8b48df188ec7c391cc892fe1ac5db7459c63eb2d1a5"
+        - name: kind
+          value: task
+        resolver: bundles
+    
+  
+
+spec.tasks.clone
+  + one map entry added:
+    params:
+    - name: revision
+      value: main
+    
+  
+
+spec.tasks.test.params
+  + one list entry added:
+    - name: verbose
+      value: vvv
+    
+  
+
+
