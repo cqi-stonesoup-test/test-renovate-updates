@@ -28,6 +28,9 @@ spec:
       - name: skip-checks
         value: "false"
     - name: clone
+      params:
+      - name: revision
+        value: develop
       taskRef:
         resolver: bundles
         params:

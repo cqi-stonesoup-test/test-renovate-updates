@@ -8,8 +8,13 @@ metadata:
   annotations:
     tekton.dev/pipelines.minVersion: "0.12.1"
 spec:
+  params:
+    - name: revision
+      description: Revision to checkout.
+      type: string
+      default: main
   steps:
     - name: clone
       image: registry.fedoraproject.org/fedora-minimal:40
       script: |
-        echo clone source
+        echo clone source from revision $(params.revision)
