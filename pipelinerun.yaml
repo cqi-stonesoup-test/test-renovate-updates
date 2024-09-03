@@ -12,22 +12,6 @@ metadata:
 spec:
   pipelineSpec:
     tasks:
-    - name: test-renovate-updates
-      params:
-      - name: image-url
-        value: quay.io/mytestworkload/test-renovate-updates:0.1
-      - name: rebuild
-        value: "false"
-      taskRef:
-        params:
-        - name: name
-          value: init
-        - name: bundle
-          value: quay.io/mytestworkload/test-renovate-updates-utils:0.1@sha256:3570ac367c2b47a38dc82b7fecb2bb814a057249e7de485478722b4dd8b0b15b
-        - name: kind
-          value: task
-        resolver: bundles
-
     - name: init
       taskRef:
         resolver: bundles
@@ -35,7 +19,7 @@ spec:
         - name: name
           value: init
         - name: bundle
-          value: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:06b92da2556c3b52576d08ce1817ad5747a28c0380ddc50a60acc48056cac3b3
+          value: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:5ec3784e43cdbf660704860be99b9f883445522892273eb05bdd434ae1864566
         - name: kind
           value: task
       params:
@@ -43,41 +27,5 @@ spec:
         value: "quay.io/mytesetworkload/test-renovate-updates-utils:devel"
       - name: skip-checks
         value: "false"
-    - name: clone
-      taskRef:
-        resolver: bundles
-        params:
-        - name: name
-          value: clone
-        - name: bundle
-          value: quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:f0d2eb9755d6bd4cdce1bd0cd5efb603ac4933a86c1d2e07d29807d17c847932
-        - name: kind
-          value: task
-      runAfter:
-      - init
-    - name: test
-      taskRef:
-        resolver: bundles
-        params:
-        - name: name
-          value: test
-        - name: bundle
-          value: quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:3380f0e54f113875c876723a76a30e36cf0786d24c4757e851b575ae8caaabf1
-        - name: kind
-          value: task
-      runAfter:
-      - clone
-    - name: pushdockerfile
-      runAfter:
-      - init
-      taskRef:
-        params:
-        - name: name
-          value: pushdockerfile
-        - name: bundle
-          value: "quay.io/mytestworkload/test-renovate-updates-task-pushdockerfile:0.1@sha256:6a086aab8a87a03c9590c8b48df188ec7c391cc892fe1ac5db7459c63eb2d1a5"
-        - name: kind
-          value: task
-        resolver: bundles
     workspaces:
     - name: workspace
