@@ -1,5 +1,14 @@
 # test-renovate-updates
 
+Task and pipeline bundles build process:
+
+* Modify task or pipeline
+* Commit the changes
+* `make build/and/push`
+* Push
+
+Push is optional and is ok to do before or after the `make`.
+
 Run Renovate:
 
 ```bash
