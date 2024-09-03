@@ -19,7 +19,7 @@ spec:
         - name: name
           value: init
         - name: bundle
-          value: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:3104dbb98ddf53193223565766213fd2d1e2f4cb86b78acfcd7f2e7218695573
+          value: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:ee3b81104f7c3d5453bab13d3255fe0bc102b6421aea1c5fea5fec0a4b8a9e9e
         - name: kind
           value: task
       params:
@@ -47,6 +47,16 @@ spec:
           value: clone
         - name: bundle
           value: "quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:5c37db771ac8bcd75dbff9b8922e2e57d534030770ca88cdfed822694ea30931"
+        - name: kind
+          value: task
+        resolver: bundles
+    - name: test
+      taskRef:
+        params:
+        - name: name
+          value: test
+        - name: bundle
+          value: "quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:a45c49a148149e9d648be9c4c7e8a514b22b2338ddfda0868294311f57907503"
         - name: kind
           value: task
         resolver: bundles
