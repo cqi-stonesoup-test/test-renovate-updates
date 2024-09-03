@@ -83,3 +83,7 @@ code/check: code/format code/flake8 code/tests
 utils/list-tasks:
 	yq '.spec.pipelineSpec.tasks[].name' pipelinerun.yaml | cat -n
 	yq '.spec.tasks[].name' ./definitions/pipeline-0.1.yaml | cat -n
+
+.PHONY: utils/list-image-tag-digest-paires
+utils/list-image-tag-digest-paires:
+	curl -sL 'https://quay.io/api/v1/repository/$(IMAGE_REPO)/tag/?onlyActiveTags=true' | jq -r '.tags[] | (.name + ", " + .manifest_digest)'
