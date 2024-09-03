@@ -22,3 +22,6 @@ spec:
           value: develop
       taskRef:
         name: clone
+    - name: test
+      taskRef:
+        name: test
