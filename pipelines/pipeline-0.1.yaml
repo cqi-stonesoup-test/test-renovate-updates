@@ -16,3 +16,6 @@ spec:
           value: "false"
       taskRef:
         name: init
+    - name: clone
+      taskRef:
+        name: clone
