@@ -87,3 +87,7 @@ utils/list-tasks:
 .PHONY: utils/list-image-tag-digest-paires
 utils/list-image-tag-digest-paires:
 	curl -sL 'https://quay.io/api/v1/repository/$(IMAGE_REPO)/tag/?onlyActiveTags=true' | jq -r '.tags[] | (.name + " " + .manifest_digest)'
+
+.PHONY: utils/clear-image-repos
+utils/clear-image-repos:
+	./clear-image-repos.sh
