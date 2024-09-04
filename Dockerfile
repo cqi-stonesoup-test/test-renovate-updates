@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/rhel8/python-312@sha256:dee8d28892e1e5734c7a68273ce299456a2d886861753456d28d155d7aa7e8f5
+FROM registry.access.redhat.com/rhel8/python-312@sha256:4f0e91e3d194e46733849f58c7c574649bf140fb1bec6fe8f36ab1359d2c0f64
 ARG author=me
 ARG team=me
 LABEL simple-python-app.github.com.author=${author} \
