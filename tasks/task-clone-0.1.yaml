@@ -3,7 +3,7 @@ kind: Task
 metadata:
   name: clone
   labels:
-    app.kubernetes.io/version: "0.3"
+    app.kubernetes.io/version: "0.4"
     build.appstudio.redhat.com/build_type: "docker"
   annotations:
     tekton.dev/pipelines.minVersion: "0.12.1"
@@ -16,6 +16,10 @@ spec:
       description: Revision to checkout.
       type: string
       default: main
+    - name: sslVerify
+      description: Set the `http.sslVerify` global git config. Setting this to `false` is not advised unless you are sure that you trust your git remote.
+      type: string
+      default: "true"
   steps:
     - name: clone
       image: registry.fedoraproject.org/fedora-minimal:40

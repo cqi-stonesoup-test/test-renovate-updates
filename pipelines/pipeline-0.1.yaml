@@ -22,6 +22,8 @@ spec:
           value: https://github.com/cqi-stonesoup-test/test-renovate-updates.git
         - name: revision
           value: release-0.1
+        - name: sslVerify
+          value: false
       taskRef:
         name: clone
     - name: test
