@@ -103,7 +103,6 @@ def migrate(from_task_bundle: str, to_task_bundle: str, pipeline_run_file: str) 
                 members = tar.getmembers()
                 if len(members) > 1:
                     raise ValueError(f"Multiple members in {from_bundle_ref.repository} @ {image_digest}")
-                breakpoint()
                 reader = tar.extractfile(members[0])
                 if reader is None:
                     raise ValueError(f"Member {members[0].name} is not a regular file.")
