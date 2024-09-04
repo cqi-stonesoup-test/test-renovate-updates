@@ -113,3 +113,7 @@ Doing migration for task update:
 from: quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:a45c49a148149e9d648be9c4c7e8a514b22b2338ddfda0868294311f57907503
 to: quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:5338e15072035d6c24c4808d5df572805b93dbc80ec8f9da4f2a43e349ef5732
 inspect image: quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:5338e15072035d6c24c4808d5df572805b93dbc80ec8f9da4f2a43e349ef5732
+Doing migration for task update:
+from: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:cf8c650772bbafbc6d1ad1c85741a95925132737bff09bd49e68172e7376df08
+to: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:8d16411d4400962641d11a6b1619380dc283a787ef563ebe7b0de8e5384cdc1d
+inspect image: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:8d16411d4400962641d11a6b1619380dc283a787ef563ebe7b0de8e5384cdc1d
