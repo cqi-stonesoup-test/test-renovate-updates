@@ -34,7 +34,7 @@ spec:
         - name: name
           value: clone
         - name: bundle
-          value: quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:059e0bac3ed0877132c31ec201e023eb1e89b49ee1337c2392531e5d59e77809
+          value: quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:1f43924d9859e94897642a33ca9d95f79a1911f10877e8f583b4269546c6a5f4
         - name: kind
           value: task
       params:
@@ -42,6 +42,10 @@ spec:
         value: "https://github.com/cqi-stonesoup-test/test-renovate-updates.git"
       - name: revision
         value: develop
+      - name: url
+        value: "https://github.com/cqi-stonesoup-test/test-renovate-updates.git"
+      - name: url
+        value: "https://github.com/cqi-stonesoup-test/test-renovate-updates.git"
       - name: url
         value: "https://github.com/cqi-stonesoup-test/test-renovate-updates.git"
     - name: clone
@@ -53,7 +57,7 @@ spec:
         - name: name
           value: clone
         - name: bundle
-          value: "quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:059e0bac3ed0877132c31ec201e023eb1e89b49ee1337c2392531e5d59e77809"
+          value: "quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:1f43924d9859e94897642a33ca9d95f79a1911f10877e8f583b4269546c6a5f4"
         - name: kind
           value: task
         resolver: bundles
@@ -79,7 +83,7 @@ spec:
         - name: name
           value: test
         - name: bundle
-          value: "quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:a45c49a148149e9d648be9c4c7e8a514b22b2338ddfda0868294311f57907503"
+          value: "quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:5338e15072035d6c24c4808d5df572805b93dbc80ec8f9da4f2a43e349ef5732"
         - name: kind
           value: task
         resolver: bundles
@@ -92,7 +96,7 @@ spec:
         - name: name
           value: test
         - name: bundle
-          value: "quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:a45c49a148149e9d648be9c4c7e8a514b22b2338ddfda0868294311f57907503"
+          value: "quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:5338e15072035d6c24c4808d5df572805b93dbc80ec8f9da4f2a43e349ef5732"
         - name: kind
           value: task
         resolver: bundles

@@ -97,3 +97,39 @@ spec.tasks.clone.params
   
 
 
+Doing migration for task update:
+from: quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:059e0bac3ed0877132c31ec201e023eb1e89b49ee1337c2392531e5d59e77809
+to: quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:1f43924d9859e94897642a33ca9d95f79a1911f10877e8f583b4269546c6a5f4
+inspect image: quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:1f43924d9859e94897642a33ca9d95f79a1911f10877e8f583b4269546c6a5f4
+Doing migration for task update:
+from: quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:059e0bac3ed0877132c31ec201e023eb1e89b49ee1337c2392531e5d59e77809
+to: quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:1f43924d9859e94897642a33ca9d95f79a1911f10877e8f583b4269546c6a5f4
+inspect image: quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:1f43924d9859e94897642a33ca9d95f79a1911f10877e8f583b4269546c6a5f4
+Doing migration for task update:
+from: quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:a45c49a148149e9d648be9c4c7e8a514b22b2338ddfda0868294311f57907503
+to: quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:5338e15072035d6c24c4808d5df572805b93dbc80ec8f9da4f2a43e349ef5732
+inspect image: quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:5338e15072035d6c24c4808d5df572805b93dbc80ec8f9da4f2a43e349ef5732
+changes from pipeline quay.io/mytestworkload/test-renovate-updates-pipeline:245189c646a9d16cb19e8cde8d0e4acc928ad404 to pipelinequay.io/mytestworkload/test-renovate-updates-pipeline:da3acef9edbde01caf04059c0be2e411e70b46c1:
+
+spec.tasks.clone.params
+  + one list entry added:
+    - name: url
+      value: "https://github.com/cqi-stonesoup-test/test-renovate-updates.git"
+    
+  
+
+
+Doing migration for task update:
+from: quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:a45c49a148149e9d648be9c4c7e8a514b22b2338ddfda0868294311f57907503
+to: quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:5338e15072035d6c24c4808d5df572805b93dbc80ec8f9da4f2a43e349ef5732
+inspect image: quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:5338e15072035d6c24c4808d5df572805b93dbc80ec8f9da4f2a43e349ef5732
+changes from pipeline quay.io/mytestworkload/test-renovate-updates-pipeline:245189c646a9d16cb19e8cde8d0e4acc928ad404 to pipelinequay.io/mytestworkload/test-renovate-updates-pipeline:da3acef9edbde01caf04059c0be2e411e70b46c1:
+
+spec.tasks.clone.params
+  + one list entry added:
+    - name: url
+      value: "https://github.com/cqi-stonesoup-test/test-renovate-updates.git"
+    
+  
+
+
