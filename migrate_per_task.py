@@ -4,13 +4,15 @@ import logging
 import os
 import os.path
 import subprocess
+import tarfile
 import tempfile
 
 from collections.abc import Generator
 from contextlib import contextmanager
 from typing import Final
 
-from utils import determine_task_bundle_updates_range, quay_registry, parse_image_reference, load_yaml, dump_yaml
+from utils import determine_task_bundle_updates_range, quay_registry, parse_image_reference, load_yaml, dump_yaml, \
+    create_yaml_obj
 
 TEKTON_KIND_PIPELINE: Final = "Pipeline"
 TEKTON_KIND_PIPELINE_RUN: Final = "PipelineRun"
@@ -33,7 +35,7 @@ def resolve_pipeline(pipeline_file: str) -> Generator[str]:
     elif kind == TEKTON_KIND_PIPELINE_RUN:
         if "pipelineSpec" in origin_pipeline["spec"]:
             # pipeline definition is inline the PipelineRun
-            fd, temp_pipeline_file = tempfile.mkstemp()
+            fd, temp_pipeline_file = tempfile.mkstemp(suffix="-pipeline")
             os.close(fd)
             pipeline = {"spec": origin_pipeline["spec"]["pipelineSpec"]}
             dump_yaml(temp_pipeline_file, pipeline)
@@ -68,6 +70,7 @@ def migrate(from_task_bundle: str, to_task_bundle: str, pipeline_run_file: str) 
 
     # step: determine the task bundles update range
     task_bundles_updates_range = determine_task_bundle_updates_range(from_task_bundle, to_task_bundle)
+    logger.info("%r", task_bundles_updates_range)
 
     from_bundle_ref = parse_image_reference(from_task_bundle)
 
@@ -88,7 +91,26 @@ def migrate(from_task_bundle: str, to_task_bundle: str, pipeline_run_file: str) 
         quay_registry.fetch_blob(from_bundle_ref.repository, config_digest, buf)
         config_json = json.loads(buf.getvalue())
         buf.close()
-        task_version = config_json["config"]["Labels"]["version"]
+        if "Labels" in config_json["config"]:
+            task_version = config_json["config"]["Labels"]["version"]
+        else:
+            # Get the version from app.kubernetes.io/version
+            layer_digest = layers[0]["digest"]
+            layer_blob = io.BytesIO()
+            quay_registry.fetch_blob(from_bundle_ref.repository, layer_digest, layer_blob)
+            layer_blob.seek(0)
+            with tarfile.open(fileobj=layer_blob, mode="r") as tar:
+                members = tar.getmembers()
+                if len(members) > 1:
+                    raise ValueError(f"Multiple members in {from_bundle_ref.repository} @ {image_digest}")
+                breakpoint()
+                reader = tar.extractfile(members[0])
+                if reader is None:
+                    raise ValueError(f"Member {members[0].name} is not a regular file.")
+                bundle_data = reader.read()
+            layer_blob.close()
+            task_yaml = create_yaml_obj().load(bundle_data)
+            task_version = task_yaml["metadata"]["labels"]["app.kubernetes.io/version"]
 
         # NOTE:
         # for demo, discovering the migration scripts from local filesystem
@@ -98,6 +120,8 @@ def migrate(from_task_bundle: str, to_task_bundle: str, pipeline_run_file: str) 
         if os.path.exists(migration_file):
             logger.info("discovered migration file %s", migration_file)
             migration_files.append(migration_file)
+        else:
+            logger.info("no migration file %s", migration_file)
 
     # step: apply the migration scripts
     with resolve_pipeline(pipeline_run_file) as pipeline_file:

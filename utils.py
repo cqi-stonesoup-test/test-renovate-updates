@@ -178,10 +178,10 @@ def determine_task_bundle_updates_range(from_task_bundle: str, to_task_bundle: s
     for tag in quay_list_repo_tags(from_bundle_ref.repository):
         if not task_tag_re.match(tag["name"]):
             continue
-        if tag["manifest_digest"] == from_bundle_ref.digest:
+        if tag["manifest_digest"] == to_bundle_ref.digest:
             r.append(tag)
             in_range = True
-        elif tag["manifest_digest"] == to_bundle_ref.digest:
+        elif tag["manifest_digest"] == from_bundle_ref.digest:
             r.append(tag)
             break
         elif in_range:
