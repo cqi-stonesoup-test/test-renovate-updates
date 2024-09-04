@@ -3,7 +3,7 @@ set -euo pipefail
 pipeline=$1
 coverage_task_exists=$(
 yq '
-.spec.pipelineSpec.tasks[] | select(.name == "coverage") |
+.spec.tasks[] | select(.name == "coverage") |
 .taskRef.params[] | select(.name == "bundle") |
 .value | contains("quay.io/mytestworkload/test-renovate-updates-task-coverage")
 ' "$pipeline"
@@ -22,5 +22,5 @@ then
   },
   "runAfter": ["test"]
 }'
-  yq -i ".spec.pipelineSpec.tasks += ${task_def}" "$pipeline"
+  yq -i ".spec.tasks += ${task_def}" "$pipeline"
 fi
