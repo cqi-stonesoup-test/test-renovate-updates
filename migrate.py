@@ -8,8 +8,8 @@ import subprocess
 import fn
 
 from typing import Callable, Final
-from ruamel.yaml import YAML
 from fn import append, apply, delete_if, delete_key, with_path, if_matches, nth
+from utils import create_yaml_obj
 
 # {yaml path => {action => details}}
 DifferencesT = dict[str, dict[str, str]]
@@ -27,13 +27,6 @@ LIST_MAP_ACTIONS_RE: Final = re.compile(
 )
 
 TK_LIST_FIELDS: Final = ["params", "tasks", "workspaces"]
-
-
-def create_yaml_obj():
-    yaml = YAML()
-    yaml.preserve_quotes = True
-    yaml.width = 8192
-    return yaml
 
 
 def count_leading_spaces(s: str) -> int:
@@ -123,6 +116,7 @@ def match_name_value(name: str, value: str) -> Callable:
 def eq(target_obj):
     def _inner(o):
         return o == target_obj
+
     return _inner
 
 

@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Final
 
-from utils import ImageReference, parse_image_reference, quay_list_repo_tags, tkn_bundle_fetch
+from utils import ImageReference, parse_image_reference, quay_list_repo_tags, tkn_bundle_fetch, TASK_TAG_REGEXP
 
 import migrate
 
@@ -23,10 +23,6 @@ logger = logging.getLogger("migrate")
 
 build_log = logging.getLogger("build.log")
 build_log.setLevel(logging.DEBUG)
-
-
-# Example:  0.1-18a61693389c6c912df587f31bc3b4cc53eb0d5b
-TASK_TAG_REGEXP: Final = r"^[0-9.]+-[0-9a-f]+$"
 
 
 @dataclass
@@ -200,7 +196,7 @@ def main():
         metavar="migration_mode",
         required=True,
         help="Select the migration mode. Mode auto will try to detect the migrations automatically. "
-             "Mode manual will discover migration scripts written by developers and apply them one by one",
+        "Mode manual will discover migration scripts written by developers and apply them one by one",
     )
 
     args = parser.parse_args()
@@ -229,7 +225,8 @@ def main():
 
     if args.migration_mode == "manual":
         import migrate_per_task
-        migrate_per_task.migrate(args.from_task_bundle, args.to_task_bundle)
+
+        migrate_per_task.migrate(args.from_task_bundle, args.to_task_bundle, args.pipeline_run_file)
     else:
         # find out the corresponding pipeline bundle
 
@@ -238,38 +235,6 @@ def main():
             os.makedirs(os.path.join("pipelines", "temp"))
 
         migrate_update(args.from_task_bundle, args.to_task_bundle, defs_temp_dir, args.pipeline_run_file)
-
-
-def check_task_bundles_update_range():
-    update_pairs: list[tuple[str, str, str]] = []
-    with open("./task-bundles-updates.diff", "r") as f:
-        from_task_bundle, to_task_bundle = "", ""
-        for line in f:
-            if line.startswith("-  "):
-                _, from_task_bundle = line.rstrip().split(": ")
-            elif line.startswith("+  "):
-                _, to_task_bundle = line.rstrip().split(": ")
-            if from_task_bundle and to_task_bundle:
-                from_image_ref = parse_image_reference(from_task_bundle)
-                to_image_ref = parse_image_reference(to_task_bundle)
-                from_task_bundle_tag, to_task_bundle_tag = "", ""
-
-                for tag in quay_list_repo_tags(from_image_ref.repository):
-                    if re.match(TASK_TAG_REGEXP, tag["name"]) and tag["manifest_digest"] == from_image_ref.digest:
-                        from_task_bundle_tag = tag["name"]
-                        update_pairs.append(("R: " + from_task_bundle, tag["start_ts"], tag["name"]))
-                    elif re.match(TASK_TAG_REGEXP, tag["name"]) and tag["manifest_digest"] == to_image_ref.digest:
-                        to_task_bundle_tag = tag["name"]
-                        update_pairs.append(("A: " + to_task_bundle, tag["start_ts"], tag["name"]))
-                    if from_task_bundle_tag and to_task_bundle_tag:
-                        break
-
-                from_task_bundle, to_task_bundle = "", ""
-
-    sorted_updates = sorted(update_pairs, key=lambda item: item[1], reverse=True)
-
-    for _, _, tag_name in sorted_updates:
-        print(tag_name.split("-")[1])
 
 
 if __name__ == "__main__":
