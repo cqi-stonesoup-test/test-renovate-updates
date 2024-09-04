@@ -32,7 +32,7 @@ BUILD_LOG_FILE ?= build.log
 .PHONY: run/renovate
 run/renovate:
 	@echo "Renovating ..."
-	@LOG_LEVEL=debug RENOVATE_CONFIG_FILE="$(shell pwd)/renovate-global-config.json" \
+	@LOG_LEVEL=debug RENOVATE_CONFIG_FILE="$(shell pwd)/config/renovate-global-config.json" \
 		renovate --token "$(GH_TOKEN)" "$(TEST_REPO)" 2>&1 >"$(BUILD_LOG_FILE)"
 
 
@@ -45,7 +45,7 @@ set-task-bundle:
 
 .PHONY: build/and/push
 build/and/push:
-	./build-and-push.sh
+	./hack/build-and-push.sh
 
 NEW_TASK_NAME ?= newtask
 NEW_TASK_FILE = ./tasks/task-$(NEW_TASK_NAME)-0.1.yaml
@@ -90,4 +90,4 @@ utils/list-image-tag-digest-paires:
 
 .PHONY: utils/clear-image-repos
 utils/clear-image-repos:
-	./clear-image-repos.sh
+	./hack/clear-image-repos.sh
