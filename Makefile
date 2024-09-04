@@ -61,7 +61,8 @@ add-new-task:
 
 
 LINE_LENGTH ?= 120
-PY_SCRIPTS = migration-tool.py migrate.py
+PY_SCRIPTS = migration-tool.py migrate.py utils.py migrate_per_task.py
+PY_TESTS = test_migration_tool.py
 
 .PHONY: code/format
 code/format:
@@ -73,7 +74,7 @@ code/flake8:
 
 .PHONY: code/tests
 code/tests:
-	python3 -m pytest $(PY_SCRIPTS)
+	python3 -m pytest $(PY_TESTS)
 
 .PHONY: code/check
 code/check: code/format code/flake8 code/tests
