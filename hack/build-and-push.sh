@@ -42,7 +42,9 @@ find "$TASKS_DIR" -maxdepth 1 -name "task-*.yaml" | while read -r file_path; do
         bundle_ref="${bundle}@${digest}"
     else
         digest_file=$(mktemp --suffix="-task-${task_name}-bundle-digest")
-        tkn_bundle_push -f "${TASKS_DIR}/task-${task_name}-${task_version}.yaml" "${bundle}-${git_revision}"
+        task_filename="${TASKS_DIR}/task-${task_name}-${task_version}.yaml"
+        k8s_task_version=$(yq '.metadata.labels."app.kubernetes.io/version"' "$task_filename")
+        tkn_bundle_push -f "${task_filename}" "${bundle}-${git_revision}" --label version="$k8s_task_version"
         skopeo copy --digestfile "${digest_file}" "docker://${bundle}-${git_revision}" "docker://${bundle}"
         bundle_ref="${bundle}@$(cat "${digest_file}")"
     fi
