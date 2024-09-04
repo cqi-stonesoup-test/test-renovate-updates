@@ -193,6 +193,15 @@ def main():
         default="",
         help="Update pipeline for this PipelineRun.",
     )
+    parser.add_argument(
+        "-m",
+        "--migration-mode",
+        choices=("auto", "manual"),
+        metavar="migration_mode",
+        required=True,
+        help="Select the migration mode. Mode auto will try to detect the migrations automatically. "
+             "Mode manual will discover migration scripts written by developers and apply them one by one",
+    )
 
     args = parser.parse_args()
 
@@ -218,13 +227,17 @@ def main():
 
     build_log.debug("inspect image: %s", args.to_task_bundle)
 
-    # find out the corresponding pipeline bundle
+    if args.migration_mode == "manual":
+        import migrate_per_task
+        migrate_per_task.migrate(args.from_task_bundle, args.to_task_bundle)
+    else:
+        # find out the corresponding pipeline bundle
 
-    defs_temp_dir = os.path.join(os.getcwd(), "pipelines", "temp")
-    if not os.path.exists(defs_temp_dir):
-        os.makedirs(os.path.join("pipelines", "temp"))
+        defs_temp_dir = os.path.join(os.getcwd(), "pipelines", "temp")
+        if not os.path.exists(defs_temp_dir):
+            os.makedirs(os.path.join("pipelines", "temp"))
 
-    migrate_update(args.from_task_bundle, args.to_task_bundle, defs_temp_dir, args.pipeline_run_file)
+        migrate_update(args.from_task_bundle, args.to_task_bundle, defs_temp_dir, args.pipeline_run_file)
 
 
 def check_task_bundles_update_range():
