@@ -29,3 +29,8 @@ spec:
     - name: test
       taskRef:
         name: test
+    - name: coverage
+      taskRef:
+        name: coverage
+      runAfter:
+        - test
