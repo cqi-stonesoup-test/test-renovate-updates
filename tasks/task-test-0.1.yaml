@@ -3,7 +3,7 @@ kind: Task
 metadata:
   name: test
   labels:
-    app.kubernetes.io/version: "0.1"
+    app.kubernetes.io/version: "0.1.1"
     build.appstudio.redhat.com/build_type: "docker"
   annotations:
     tekton.dev/pipelines.minVersion: "0.12.1"
@@ -13,6 +13,10 @@ spec:
       description: Test runner
       type: string
       default: "pytest"
+    - name: verbose
+      description: Verbose of test runner
+      type: string
+      default: ""
   steps:
     - name: unittest
       image: registry.fedoraproject.org/fedora-minimal:40

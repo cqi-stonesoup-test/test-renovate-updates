@@ -28,6 +28,9 @@ spec:
       - name: source
         workspace: workspace
     - name: test
+      params:
+      - name: verbose
+        value: vv
       taskRef:
         name: test
       runAfter:
