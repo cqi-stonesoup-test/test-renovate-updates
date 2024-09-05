@@ -22,3 +22,5 @@ spec:
       image: registry.fedoraproject.org/fedora-minimal:40
       script: |
         echo running integration tests
+  workspaces:
+  - name: source

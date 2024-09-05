@@ -24,13 +24,24 @@ spec:
           value: release-0.1
       taskRef:
         name: clone
+      workspaces:
+      - name: source
+        workspace: workspace
     - name: test
       taskRef:
         name: test
       runAfter:
         - clone
+      workspaces:
+      - name: source
+        workspace: workspace
     - name: coverage
       taskRef:
         name: coverage
       runAfter:
         - test
+      workspaces:
+      - name: source
+        workspace: workspace
+  workspaces:
+  - name: workspace

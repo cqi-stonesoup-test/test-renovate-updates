@@ -13,3 +13,5 @@ spec:
       image: registry.fedoraproject.org/fedora-minimal:40
       script: |
         echo report coverage
+  workspaces:
+  - name: source

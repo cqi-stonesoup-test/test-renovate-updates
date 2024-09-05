@@ -25,3 +25,5 @@ spec:
       image: registry.fedoraproject.org/fedora-minimal:40
       script: |
         echo clone source from $(params.url) at revision $(params.revision)
+  workspaces:
+  - source
