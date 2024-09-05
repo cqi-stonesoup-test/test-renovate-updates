@@ -19,7 +19,7 @@ spec:
         - name: name
           value: init
         - name: bundle
-          value: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:8d16411d4400962641d11a6b1619380dc283a787ef563ebe7b0de8e5384cdc1d
+          value: quay.io/mytestworkload/test-renovate-updates-task-init:0.1@sha256:1c88983ab9cb733e88c7379366e16e371e11abdf9ac39fff48ea304201ee7869
         - name: kind
           value: task
       params:
@@ -59,6 +59,8 @@ spec:
       params:
       - name: test_runner
         value: pytest
+      runAfter:
+      - clone
     - name: coverage
       taskRef:
         params:
