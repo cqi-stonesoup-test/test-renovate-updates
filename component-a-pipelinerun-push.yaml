@@ -34,7 +34,7 @@ spec:
         - name: name
           value: clone
         - name: bundle
-          value: quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:b4cdb3ea6b1923fa97aa2bff1f5a974910c7c1b7718bb6853e2e78e72811cb1f
+          value: quay.io/mytestworkload/test-renovate-updates-task-clone:0.1@sha256:44d5a420073098793e7025250bf102fba83caa09fbca016c708c8ad45f522e27
         - name: kind
           value: task
       params:
@@ -44,5 +44,8 @@ spec:
         value: release-0.1
       - name: url
         value: "https://github.com/cqi-stonesoup-test/test-renovate-updates.git"
-      - name: sslVerify
-        value: "false"
+      workspaces:
+      - name: source
+        workspace: workspace
+    workspaces:
+    - name: workspace
