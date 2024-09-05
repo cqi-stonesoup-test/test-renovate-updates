@@ -35,18 +35,5 @@
       ],
       "groupName": "devel"
     }
-  ],
-
-  "regexManagers": [
-    {
-      "fileMatch": ["^Containerfile.*$"],
-      "matchStrings": [
-        "ARG yq_version=[\"']?(?<currentValue>.+?)[\"']?\\s+"
-      ],
-      "datasourceTemplate": "github-releases",
-      "depNameTemplate": "mikefarah/yq",
-      "extractVersionTemplate": "^v(?<version>.*)$"
-    }
   ]
-
 }
