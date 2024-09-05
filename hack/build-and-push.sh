@@ -64,5 +64,6 @@ then
     tkn_bundle_push -f "${PIPELINES_BUILD_DIR}/pipeline.yaml" "${pipeline_bundle}"
 fi
 
-tkn bundle list -o yaml "${PIPELINE_IMAGE_REPO}:0.1" pipeline pipeline-build >/tmp/pipeline-build.yaml
+digest=$(curl -sL "https://quay.io/api/v1/repository/${PIPELINE_IMAGE_REPO#*/}/tag/?onlyActiveTags=true" | jq -r '.tags[0].manifest_digest')
+tkn bundle list -o yaml "${PIPELINE_IMAGE_REPO}@${digest}" pipeline pipeline-build >/tmp/pipeline-build.yaml
 dyff between /tmp/pipeline-build.yaml "${PIPELINES_BUILD_DIR}/pipeline.yaml"
