@@ -7,7 +7,7 @@ metadata:
     appstudio.openshift.io/application: test-renovate-updates
     appstudio.openshift.io/component: test-renovate-updates
     pipelines.appstudio.openshift.io/type: build
-  name: build-something
+  name: component-a-build-pull-request
   namespace: cqi-tenant
 spec:
   pipelineSpec:
