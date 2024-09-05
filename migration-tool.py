@@ -179,9 +179,6 @@ def main():
     parser.add_argument("-f", "--from-task-bundle", required=True, metavar="IMAGE_REF")
     parser.add_argument("-t", "--to-task-bundle", required=True, metavar="IMAGE_REF")
     parser.add_argument(
-        "-l", "--log-file", metavar="PATH", default="run.log", help="Build log file. Defaults to %(default)s"
-    )
-    parser.add_argument(
         "-p",
         "--pipeline-run",
         metavar="PATH",
@@ -214,8 +211,6 @@ def main():
     if from_ref.qualified_repository != to_ref.qualified_repository:
         logger.error("Given task bundles are not same image.")
         return
-
-    build_log.addHandler(logging.FileHandler(args.log_file))
 
     build_log.info("Doing migration for task update:")
     build_log.info("from: %s", args.from_task_bundle)
