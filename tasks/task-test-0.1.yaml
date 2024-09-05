@@ -23,4 +23,4 @@ spec:
       script: |
         echo running integration tests
   workspaces:
-  - name: source
+    - name: source
