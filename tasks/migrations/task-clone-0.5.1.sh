@@ -18,3 +18,8 @@ for task in clone "test" coverage; do
     yq -i "$expr" "$pipeline"
   fi
 done
+
+if ! yq '.spec.workspaces' "$pipeline" | grep -q "\- workspace" >/dev/null
+then
+  yq -i '.spec.workspaces += [{"name": "workspace"}]' "$pipeline"
+fi
