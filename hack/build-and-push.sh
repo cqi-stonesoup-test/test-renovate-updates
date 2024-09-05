@@ -63,3 +63,6 @@ then
     echo
     tkn_bundle_push -f "${PIPELINES_BUILD_DIR}/pipeline.yaml" "${pipeline_bundle}"
 fi
+
+tkn bundle list -o yaml "${PIPELINE_IMAGE_REPO}:0.1" pipeline pipeline-build >/tmp/pipeline-build.yaml
+dyff between /tmp/pipeline-build.yaml "${PIPELINES_BUILD_DIR}/pipeline.yaml"
