@@ -4,6 +4,8 @@
     "config:recommended"
   ],
 
+  "enabledManagers": ["dockerfile", "tekton"],
+
   "tekton": {
     "fileMatch": ["./*.yaml"],
     "postUpgradeTasks": {
