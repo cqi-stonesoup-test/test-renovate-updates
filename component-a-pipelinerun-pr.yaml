@@ -53,13 +53,15 @@ spec:
         - name: name
           value: test
         - name: bundle
-          value: "quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:21df1996fa942682f7034df914e6c20c5124d423f5b7ca786168103708c6250a"
+          value: "quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:ecf393c8f6fc87a952c9b07473ec303b616b2a944665d7eb1e646466b8cc9319"
         - name: kind
           value: task
         resolver: bundles
       params:
       - name: test_runner
         value: pytest
+      - name: verbose
+        value: vv
       runAfter:
       - clone
       workspaces:
