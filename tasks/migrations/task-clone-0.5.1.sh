@@ -14,7 +14,7 @@ for task in clone "test" coverage; do
   if [ -z "$ws" ]
   then
     new_ws='[{"name": "source", "workspace": "workspace"}]'
-    expr="(.spec.pipelineSpec.tasks[] | select(.name == \"${task}\") | .workspaces) += ${new_ws}"
+    expr="(.spec.tasks[] | select(.name == \"${task}\") | .workspaces) += ${new_ws}"
     yq -i "$expr" "$pipeline"
   fi
 done
