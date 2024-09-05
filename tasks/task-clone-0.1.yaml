@@ -26,4 +26,4 @@ spec:
       script: |
         echo clone source from $(params.url) at revision $(params.revision)
   workspaces:
-    - source
+    - name: source
