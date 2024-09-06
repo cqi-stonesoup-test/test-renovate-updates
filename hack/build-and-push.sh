@@ -4,48 +4,11 @@ set -u
 set -e
 set -o pipefail
 
-tkn_bundle_push() {
+_tkn_bundle_push() {
     local status
     local retry=0
     local -r interval=${RETRY_INTERVAL:-5}
     local -r max_retries=5
-
-    if [ -n "$PSEUDO_BUILD_PUSH" ]; then
-        task_file=
-        image_ref=
-        while [ $# -gt 0 ]; do
-            if [ "$1" == "-f" ]; then
-                shift
-                task_file=$1
-            else
-                part="${1%%/*}"
-                if [ "$part" == "quay.io" ]; then
-                    image_ref=$1
-                fi
-            fi
-            shift
-        done
-        if [ -z "$task_file" ]; then
-            echo "Missing Tekton resource YAML file." 1>&2
-            return 1
-        fi
-        if [ -z "$image_ref" ]; then
-            echo "Missing Tekton bundle image reference." 1>&2
-            return 1
-        fi
-        resource_kind=$(yq '.kind' "$task_file")
-        resource_name=$(yq '.metadata.name' "$task_file")
-        resource_image_repo="${image_ref%:*}"
-        checksum=$(sha256sum "$task_file")
-        checksum=${checksum%% *}
-        echo "\
-Creating Tekton Bundle:
-- Added ${resource_kind}: ${resource_name} to image
-
-Pushed Tekton Bundle to ${resource_image_repo}@sha256:${checksum}
-"
-        return
-    fi
 
     while true; do
         echo "tkn bundle push " "$@"
@@ -59,6 +22,48 @@ Pushed Tekton Bundle to ${resource_image_repo}@sha256:${checksum}
         sleep "$interval"
     done
 }
+
+pseudo_tkn_bundle_push() {
+    local task_file=
+    local image_ref=
+    while [ $# -gt 0 ]; do
+        if [ "$1" == "-f" ]; then
+            shift
+            task_file=$1
+        else
+            part="${1%%/*}"
+            if [ "$part" == "quay.io" ]; then
+                image_ref=$1
+            fi
+        fi
+        shift
+    done
+    if [ -z "$task_file" ]; then
+        echo "Missing Tekton resource YAML file." 1>&2
+        return 1
+    fi
+    if [ -z "$image_ref" ]; then
+        echo "Missing Tekton bundle image reference." 1>&2
+        return 1
+    fi
+    resource_kind=$(yq '.kind' "$task_file")
+    resource_name=$(yq '.metadata.name' "$task_file")
+    resource_image_repo="${image_ref%:*}"
+    checksum=$(sha256sum "$task_file")
+    checksum=${checksum%% *}
+    echo "\
+Creating Tekton Bundle:
+- Added ${resource_kind}: ${resource_name} to image
+
+Pushed Tekton Bundle to ${resource_image_repo}@sha256:${checksum}
+"
+}
+
+if [ -n "$PSEUDO_BUILD_PUSH" ]; then
+    tkn_bundle_push="pseudo_tkn_bundle_push"
+else
+    tkn_bundle_push="_tkn_bundle_push"
+fi
 
 # Extract tekton bundle reference from tkn-bundle-push output
 extract_bundle_ref() {
@@ -96,7 +101,7 @@ find "$TASKS_DIR" -maxdepth 1 -name "task-*.yaml" | while read -r file_path; do
         task_filename="${TASKS_DIR}/task-${task_name}-${task_version}.yaml"
         k8s_task_version=$(yq '.metadata.labels."app.kubernetes.io/version"' "$task_filename")
         bundle_build_log=/tmp/bundle-build.log
-        tkn_bundle_push -f "${task_filename}" "${bundle}-${git_revision}" --label version="$k8s_task_version" | \
+        $tkn_bundle_push -f "${task_filename}" "${bundle}-${git_revision}" --label version="$k8s_task_version" | \
             tee "$bundle_build_log"
         if [ -z "$PSEUDO_BUILD_PUSH" ]; then
             skopeo copy "docker://${bundle}-${git_revision}" "docker://${bundle}"
@@ -123,7 +128,7 @@ pipeline_bundle="${PIPELINE_IMAGE_REPO}:${git_revision}"
 if [ -n "$PSEUDO_BUILD_PUSH" ] || ! skopeo inspect --no-tags --format '{{.Digest}}' "docker://${pipeline_bundle}" >/dev/null 2>&1
 then
     echo
-    tkn_bundle_push -f "${PIPELINES_BUILD_DIR}/pipeline.yaml" "${pipeline_bundle}"
+    $tkn_bundle_push -f "${PIPELINES_BUILD_DIR}/pipeline.yaml" "${pipeline_bundle}"
 fi
 
 dyff between --omit-header --color=off --no-table-style "$latest_pushed_pipeline" "${PIPELINES_BUILD_DIR}/pipeline.yaml" | \
