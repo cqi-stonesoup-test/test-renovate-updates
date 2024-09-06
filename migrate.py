@@ -88,6 +88,14 @@ def load_list_details(s: str):
 
 
 def load_map_details(s: str):
+    """Load a detail block that represents a map entry
+
+    Example:
+
+      workspaces:
+      - name: source
+        workspace: workspace
+    """
     return create_yaml_obj().load(s)
 
 
@@ -220,3 +228,84 @@ def migrate_with_dsl(migrations: list[Callable], pipeline_file: str) -> None:
 
     with open(pipeline_file, "w", encoding="utf-8") as f:
         yaml.dump(origin_pipeline, f)
+
+
+# ################### yq ###################
+
+
+def convert_difference(difference: str):
+    yaml_lines = []
+    read_buf = io.StringIO(difference)
+    while True:
+        line = read_buf.readline()
+        if not line:
+            break
+        s = line.rstrip()
+        if not s:
+            continue
+        spaces_n = count_leading_spaces(s)
+        match spaces_n:
+            case 0:
+                yaml_lines.append(f'"{s}":')
+            case 2:
+                yaml_lines.append(f'  "{s[2:]}": |')
+            case _:
+                yaml_lines.append(" " * spaces_n + s[spaces_n:])
+
+    yaml_content = "\n".join(yaml_lines)
+    return create_yaml_obj().load(yaml_content)
+
+
+def generate_yq_commands(differences: dict[str, dict[str, str]]) -> list[str]:
+    """Generate yq commands
+
+    spec.workspaces             -> filter pipe
+      + one list entry added:   -> operator: del(), +=, =
+        - name: netrc
+          optional: true
+
+    :param differences: a mapping from path to the detail.
+    :type differences: dict[str, dict[str, str]]
+    """
+    exprs: list[str] = []  # yq expressions
+
+    path_pattern = r"^spec\.tasks\.(?P<task_name>[\w-]+)(\.params)?$"
+
+    for path in differences:
+        if not re.match(path_pattern, path):
+            continue
+
+        path_filters: list[str] = []
+        parts = path.split(".")
+
+        for i, part in enumerate(parts):
+            if i > 0 and is_tk_list_fields(parts[i - 1]):
+                path_filters[-1] += "[]"
+                path_filters.append(f'select(.name == "{part}")')
+            else:
+                path_filters.append("." + part)
+
+        for action in differences[path]:
+            path_filters_pipe = " | ".join(path_filters)
+            detail = differences[path][action]
+            m = LIST_MAP_ACTIONS_RE.match(action)
+            if m:
+                op = m.group("operation")
+                type_ = m.group("type")
+                if type_ == FIELD_TYPE_LIST:
+                    for detail_item in load_list_details(detail):
+                        if op == OP_ADDED:
+                            exprs.append(f"({path_filters_pipe}) += {json_compact_dumps(detail_item)}")
+                        elif op == OP_REMOVED:
+                            name = detail_item["name"]
+                            value = detail_item["value"]
+                            e = f'del({path_filters_pipe}[] | select(.name == "{name}" and .value == "{value}"))'
+                            exprs.append(e)
+                elif type_ == FIELD_TYPE_MAP:
+                    maps = load_map_details(detail)
+                    if op == OP_ADDED:
+                        exprs.append(f"({path_filters_pipe}) += {json_compact_dumps(maps)}")
+                    elif op == OP_REMOVED:
+                        exprs.extend(f"del({path_filters_pipe} | .{key})" for key in maps)
+
+    return exprs
