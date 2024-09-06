@@ -7,6 +7,7 @@ import subprocess
 
 import fn
 
+from textwrap import dedent
 from typing import Callable, Final
 from fn import append, apply, delete_if, delete_key, with_path, if_matches, nth
 from utils import create_yaml_obj
@@ -256,6 +257,11 @@ def convert_difference(difference: str):
     return create_yaml_obj().load(yaml_content)
 
 
+def wrap_yq(expression: str, in_place: bool = False) -> str:
+    cmd = ["yq", "-i" if in_place else "", expression, '"$pipeline"']
+    return " ".join(cmd)
+
+
 def generate_yq_commands(differences: dict[str, dict[str, str]]) -> list[str]:
     """Generate yq commands
 
@@ -267,13 +273,13 @@ def generate_yq_commands(differences: dict[str, dict[str, str]]) -> list[str]:
     :param differences: a mapping from path to the detail.
     :type differences: dict[str, dict[str, str]]
     """
-    exprs: list[str] = []  # yq expressions
+    commands: list[str] = []  # yq commands
 
     path_pattern = r"^spec\.tasks\.(?P<task_name>[\w-]+)(\.params)?$"
 
     for path in differences:
-        if not re.match(path_pattern, path):
-            continue
+        # if not re.match(path_pattern, path):
+        #     continue
 
         path_filters: list[str] = []
         parts = path.split(".")
@@ -295,17 +301,36 @@ def generate_yq_commands(differences: dict[str, dict[str, str]]) -> list[str]:
                 if type_ == FIELD_TYPE_LIST:
                     for detail_item in load_list_details(detail):
                         if op == OP_ADDED:
-                            exprs.append(f"({path_filters_pipe}) += {json_compact_dumps(detail_item)}")
+                            commands.append(wrap_yq(f"({path_filters_pipe}) += {json_compact_dumps(detail_item)}", in_place=True))
+                            commands.append(wrap_yq(f"{path_filters_pipe} |= unique", in_place=True))
                         elif op == OP_REMOVED:
                             name = detail_item["name"]
                             value = detail_item["value"]
-                            e = f'del({path_filters_pipe}[] | select(.name == "{name}" and .value == "{value}"))'
-                            exprs.append(e)
+                            cmd = wrap_yq(
+                                f'del({path_filters_pipe}[] | select(.name == "{name}" and .value == "{value}"))',
+                                in_place=True,
+                            )
+                            commands.append(cmd)
                 elif type_ == FIELD_TYPE_MAP:
                     maps = load_map_details(detail)
                     if op == OP_ADDED:
-                        exprs.append(f"({path_filters_pipe}) += {json_compact_dumps(maps)}")
+                        # FIXME: what about more than one map entries?
+                        map_key = list(maps.keys())[0]
+                        cmd = wrap_yq(f'{path_filters_pipe} | has("{map_key}")')
+                        commands.append(f'exists=$({cmd})')
+                        cmd = wrap_yq(
+                            f"({path_filters_pipe} | .{map_key}) += {json_compact_dumps(maps[map_key])}", in_place=True
+                        )
+                        commands.append(
+                            dedent(
+                            f'''\
+                            if [ "$exists" == "false" ]; then
+                                {cmd}
+                            fi
+                            '''
+                            ).strip()
+                        )
                     elif op == OP_REMOVED:
-                        exprs.extend(f"del({path_filters_pipe} | .{key})" for key in maps)
+                        commands.extend(wrap_yq(f"del({path_filters_pipe} | .{key})", in_place=True) for key in maps)
 
-    return exprs
+    return commands
