@@ -9,8 +9,46 @@ tkn_bundle_push() {
     local retry=0
     local -r interval=${RETRY_INTERVAL:-5}
     local -r max_retries=5
+
+    if [ -n "$PSEUDO_BUILD_PUSH" ]; then
+        task_file=
+        image_ref=
+        while [ $# -gt 0 ]; do
+            if [ "$1" == "-f" ]; then
+                shift
+                task_file=$1
+            else
+                part="${1%%/*}"
+                if [ "$part" == "quay.io" ]; then
+                    image_ref=$1
+                fi
+            fi
+            shift
+        done
+        if [ -z "$task_file" ]; then
+            echo "Missing Tekton resource YAML file." 1>&2
+            return 1
+        fi
+        if [ -z "$image_ref" ]; then
+            echo "Missing Tekton bundle image reference." 1>&2
+            return 1
+        fi
+        resource_kind=$(yq '.kind' "$task_file")
+        resource_name=$(yq '.metadata.name' "$task_file")
+        resource_image_repo="${image_ref%:*}"
+        checksum=$(sha256sum "$task_file")
+        checksum=${checksum%% *}
+        echo "\
+Creating Tekton Bundle:
+- Added ${resource_kind}: ${resource_name} to image
+
+Pushed Tekton Bundle to ${resource_image_repo}@sha256:${checksum}
+"
+        return
+    fi
+
     while true; do
-    echo "tkn bundle push " "$@"
+        echo "tkn bundle push " "$@"
         tkn bundle push "$@" && break
         status=$?
         ((retry+=1))
@@ -20,6 +58,20 @@ tkn_bundle_push() {
         echo "Waiting for a while, then retry the tkn bundle push ..."
         sleep "$interval"
     done
+}
+
+# Extract tekton bundle reference from tkn-bundle-push output
+extract_bundle_ref() {
+    echo "^Pushed Tekton Bundle to " | cut -d' ' -f5
+}
+
+inspect_bundle_digest() {
+    local -r image_ref=${1:?Missing image reference of a tekton bundle}
+    if [ -n "$PSEUDO_BUILD_PUSH" ]; then
+        return 1  # meaning the bundle does not exist in the registry yet.
+    fi
+    skopeo inspect --no-tags --format='{{.Digest}}' "docker://${image_ref}" 2>/dev/null
+    return $?
 }
 
 TASKS_DIR=./tasks
@@ -38,15 +90,19 @@ find "$TASKS_DIR" -maxdepth 1 -name "task-*.yaml" | while read -r file_path; do
     bundle="quay.io/mytestworkload/test-renovate-updates-task-${task_name}:${task_version}"
     git_revision=$(git log -n 1 --pretty=format:%H -- "$file_path")
 
-    if digest=$(skopeo inspect --no-tags --format='{{.Digest}}' "docker://${bundle}-${git_revision}" 2>/dev/null); then
+    if digest=$(inspect_bundle_digest "${bundle}-${git_revision}"); then
         bundle_ref="${bundle}@${digest}"
     else
-        digest_file=$(mktemp --suffix="-task-${task_name}-bundle-digest")
         task_filename="${TASKS_DIR}/task-${task_name}-${task_version}.yaml"
         k8s_task_version=$(yq '.metadata.labels."app.kubernetes.io/version"' "$task_filename")
-        tkn_bundle_push -f "${task_filename}" "${bundle}-${git_revision}" --label version="$k8s_task_version"
-        skopeo copy --digestfile "${digest_file}" "docker://${bundle}-${git_revision}" "docker://${bundle}"
-        bundle_ref="${bundle}@$(cat "${digest_file}")"
+        bundle_build_log=/tmp/bundle-build.log
+        tkn_bundle_push -f "${task_filename}" "${bundle}-${git_revision}" --label version="$k8s_task_version" | \
+            tee "$bundle_build_log"
+        if [ -z "$PSEUDO_BUILD_PUSH" ]; then
+            skopeo copy "docker://${bundle}-${git_revision}" "docker://${bundle}"
+        fi
+        image_digest=$(extract_bundle_ref <"$bundle_build_log")
+        bundle_ref="${bundle}@${image_digest}"
     fi
 
     git_resolver="{\"resolver\": \"bundles\", \"params\": [{\"name\": \"name\", \"value\": \"${task_name}\"}, {\"name\": \"bundle\", \"value\": \"${bundle_ref}\"}, {\"name\": \"kind\", \"value\": \"task\"}]}"
@@ -61,12 +117,12 @@ tkn bundle list -o yaml "${PIPELINE_IMAGE_REPO}@${digest}" pipeline pipeline-bui
 
 git_revision=$(git log -n 1 --pretty=format:%H -- "${PIPELINES_DIR}/pipeline-0.1.yaml")
 pipeline_bundle="${PIPELINE_IMAGE_REPO}:${git_revision}"
-if ! skopeo inspect --no-tags --format '{{.Digest}}' "docker://${pipeline_bundle}" >/dev/null 2>&1
+if [ -n "$PSEUDO_BUILD_PUSH" ] || ! skopeo inspect --no-tags --format '{{.Digest}}' "docker://${pipeline_bundle}" >/dev/null 2>&1
 then
     echo
     tkn_bundle_push -f "${PIPELINES_BUILD_DIR}/pipeline.yaml" "${pipeline_bundle}"
 fi
 
-dyff --omit-header --color=off --no-table-style between /tmp/pipeline-build.yaml "${PIPELINES_BUILD_DIR}/pipeline.yaml" | \
+dyff between --omit-header --color=off --no-table-style /tmp/pipeline-build.yaml "${PIPELINES_BUILD_DIR}/pipeline.yaml" | \
 tee /tmp/pipeline-diff.txt
 python3 migrate_with_yq.py -i </tmp/pipeline-diff.txt
