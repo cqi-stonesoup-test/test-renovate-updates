@@ -10,7 +10,7 @@ tkn_bundle_push() {
     local -r interval=${RETRY_INTERVAL:-5}
     local -r max_retries=5
     while true; do
-	echo "tkn bundle push " "$@"
+    echo "tkn bundle push " "$@"
         tkn bundle push "$@" && break
         status=$?
         ((retry+=1))
@@ -56,6 +56,9 @@ done
 PIPELINE_IMAGE_REPO=quay.io/mytestworkload/test-renovate-updates-pipeline
 declare -r PIPELINE_IMAGE_REPO
 
+digest=$(curl -sL "https://quay.io/api/v1/repository/${PIPELINE_IMAGE_REPO#*/}/tag/?onlyActiveTags=true" | jq -r '.tags[0].manifest_digest')
+tkn bundle list -o yaml "${PIPELINE_IMAGE_REPO}@${digest}" pipeline pipeline-build >/tmp/pipeline-build.yaml
+
 git_revision=$(git log -n 1 --pretty=format:%H -- "${PIPELINES_DIR}/pipeline-0.1.yaml")
 pipeline_bundle="${PIPELINE_IMAGE_REPO}:${git_revision}"
 if ! skopeo inspect --no-tags --format '{{.Digest}}' "docker://${pipeline_bundle}" >/dev/null 2>&1
@@ -64,6 +67,6 @@ then
     tkn_bundle_push -f "${PIPELINES_BUILD_DIR}/pipeline.yaml" "${pipeline_bundle}"
 fi
 
-digest=$(curl -sL "https://quay.io/api/v1/repository/${PIPELINE_IMAGE_REPO#*/}/tag/?onlyActiveTags=true" | jq -r '.tags[0].manifest_digest')
-tkn bundle list -o yaml "${PIPELINE_IMAGE_REPO}@${digest}" pipeline pipeline-build >/tmp/pipeline-build.yaml
-dyff between /tmp/pipeline-build.yaml "${PIPELINES_BUILD_DIR}/pipeline.yaml"
+dyff --omit-header --color=off --no-table-style between /tmp/pipeline-build.yaml "${PIPELINES_BUILD_DIR}/pipeline.yaml" | \
+tee /tmp/pipeline-diff.txt
+python3 migrate_with_yq.py -i </tmp/pipeline-diff.txt
