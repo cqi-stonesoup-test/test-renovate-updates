@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
 pipeline=$1
-expression='(.spec.tasks[] | select(.name == "coverage") | .runAfter) += ["init", "clone"]'
-yq -i "$expression" "$pipeline"
+yq -i '(.spec.tasks[] | select(.name == "coverage") | .runAfter) += ["init", "clone"]' "$pipeline"
+yq -i '(.spec | .tasks[] | select(.name == "coverage") | .runAfter) |= unique' "$pipeline"
