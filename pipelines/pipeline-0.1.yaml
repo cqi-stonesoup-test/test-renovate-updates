@@ -43,6 +43,8 @@ spec:
         name: coverage
       runAfter:
         - test
+        - clone
+        - init
       workspaces:
       - name: source
         workspace: workspace
