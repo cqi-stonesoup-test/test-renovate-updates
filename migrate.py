@@ -264,6 +264,19 @@ def wrap_yq(expression: str, in_place: bool = False) -> str:
     return " ".join(cmd)
 
 
+MIGRATE_SCRIPT_REMOVE_ITEM_FROM_ARRAY = '''\
+remove_item_from_array() {
+    local -r remove_item=$1
+    task_names=$(
+        yq '.spec.tasks[] | select(.name == "coverage") | .runAfter[]' "$pipeline" |
+        nl -v 0
+    )
+    grep "$remove_item" <<<"$task_names" | while read -r idx task_name; do
+        yq -i "del(.spec.tasks[] | select(.name == "coverage") | .runAfter[$idx])" "$pipeline"
+    done
+}
+'''
+
 def generate_yq_commands(differences: dict[str, dict[str, str]]) -> list[str]:
     """Generate yq commands
 
@@ -318,13 +331,30 @@ def generate_yq_commands(differences: dict[str, dict[str, str]]) -> list[str]:
                             )
                             commands.append(wrap_yq(f"({path_filters_pipe}) |= unique", in_place=True))
                     elif op == OP_REMOVED:
-                        for item in detail_items:
-                            name, value = item["name"], item["value"]
-                            cmd = wrap_yq(
-                                f'del({path_filters_pipe}[] | select(.name == "{name}" and .value == "{value}"))',
-                                in_place=True,
+                        if path_filters[-1] in [".params", ".workspaces"]:
+                            for item in detail_items:
+                                name, value = item["name"], item["value"]
+                                cmd = wrap_yq(
+                                    f'del({path_filters_pipe}[] | select(.name == "{name}" and .value == "{value}"))',
+                                    in_place=True,
+                                )
+                                commands.append(cmd)
+                        if path_filters[-1] in [".runAfter"]:
+                            commands.append(
+                                dedent(
+                                    f'''\
+                                    remove_item_from_array() {{
+                                        local -r remove_item=$1
+                                        local -r target_file=$2
+                                        task_names=$(yq f'{path_filters_pipe}[]' "$target_file" | nl -v 0)
+                                        grep "$remove_item" <<<"$task_names" | while read -r idx task_name; do
+                                            yq -i "del({path_filters_pipe}[$idx])" "$target_file"
+                                        done
+                                    }}'''
+                                )
                             )
-                            commands.append(cmd)
+                            for removed_item in detail_items:
+                                commands.append(f'remove_item_from_array {removed_item} "$pipeline"')
 
                 elif type_ == FIELD_TYPE_MAP:
                     maps = load_map_details(detail)
