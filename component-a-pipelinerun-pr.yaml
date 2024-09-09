@@ -69,6 +69,7 @@ spec:
         workspace: workspace
     - name: coverage
       taskRef:
+        resolver: bundles
         params:
         - name: name
           value: coverage
