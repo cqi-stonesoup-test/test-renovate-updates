@@ -27,7 +27,9 @@ LIST_MAP_ACTIONS_RE: Final = re.compile(
     r"^. (?P<count>[a-z]+) (?P<type>list|map) (entry|entries) (?P<operation>added|removed):$"
 )
 
-TK_LIST_FIELDS: Final = ["params", "tasks", "workspaces"]
+TK_FIELDS_LIST_OF_OBJECTS: Final = ["params", "tasks", "workspaces"]
+TK_FIELDS_ARRAY: Final = ["runAfter"]
+TK_LIST_FIELDS: Final = TK_FIELDS_LIST_OF_OBJECTS + TK_FIELDS_ARRAY
 
 
 def count_leading_spaces(s: str) -> int:
@@ -258,7 +260,7 @@ def convert_difference(difference: str):
 
 
 def wrap_yq(expression: str, in_place: bool = False) -> str:
-    cmd = ["yq", "-i" if in_place else "", expression, '"$pipeline"']
+    cmd = ["yq", "-i" if in_place else "", f"'{expression}'", '"$pipeline"']
     return " ".join(cmd)
 
 
@@ -275,7 +277,7 @@ def generate_yq_commands(differences: dict[str, dict[str, str]]) -> list[str]:
     """
     commands: list[str] = []  # yq commands
 
-    path_pattern = r"^spec\.tasks\.(?P<task_name>[\w-]+)(\.params)?$"
+    # path_pattern = r"^spec\.tasks\.(?P<task_name>[\w-]+)(\.params)?$"
 
     for path in differences:
         # if not re.match(path_pattern, path):
@@ -299,18 +301,31 @@ def generate_yq_commands(differences: dict[str, dict[str, str]]) -> list[str]:
                 op = m.group("operation")
                 type_ = m.group("type")
                 if type_ == FIELD_TYPE_LIST:
-                    for detail_item in load_list_details(detail):
-                        if op == OP_ADDED:
-                            commands.append(wrap_yq(f"({path_filters_pipe}) += {json_compact_dumps(detail_item)}", in_place=True))
-                            commands.append(wrap_yq(f"{path_filters_pipe} |= unique", in_place=True))
-                        elif op == OP_REMOVED:
-                            name = detail_item["name"]
-                            value = detail_item["value"]
+                    detail_items = load_list_details(detail)
+                    if op == OP_ADDED:
+                        if path_filters[-1] in [".params", ".workspaces"]:
+                            for item in detail_items:
+                                condition_expr = " and ".join(f'.{key} == "{val}"' for key, val in item.items())
+                                commands.append(
+                                    wrap_yq( f'del({path_filters_pipe}[] | select({condition_expr}))', in_place=True)
+                                )
+                                commands.append(
+                                    wrap_yq(f"({path_filters_pipe}) += {json_compact_dumps(item)}", in_place=True)
+                                )
+                        if path_filters[-1] in [".runAfter"]:
+                            commands.append(
+                                wrap_yq(f"({path_filters_pipe}) += {json_compact_dumps(detail_items)}", in_place=True)
+                            )
+                            commands.append(wrap_yq(f"({path_filters_pipe}) |= unique", in_place=True))
+                    elif op == OP_REMOVED:
+                        for item in detail_items:
+                            name, value = item["name"], item["value"]
                             cmd = wrap_yq(
                                 f'del({path_filters_pipe}[] | select(.name == "{name}" and .value == "{value}"))',
                                 in_place=True,
                             )
                             commands.append(cmd)
+
                 elif type_ == FIELD_TYPE_MAP:
                     maps = load_map_details(detail)
                     if op == OP_ADDED:
@@ -331,6 +346,7 @@ def generate_yq_commands(differences: dict[str, dict[str, str]]) -> list[str]:
                             ).strip()
                         )
                     elif op == OP_REMOVED:
-                        commands.extend(wrap_yq(f"del({path_filters_pipe} | .{key})", in_place=True) for key in maps)
+                        for key in maps:
+                            commands.append(wrap_yq(f"del({path_filters_pipe} | .{key})", in_place=True))
 
     return commands
