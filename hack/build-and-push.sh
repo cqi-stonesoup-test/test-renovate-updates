@@ -15,7 +15,7 @@ usage() {
     exit 1
 }
 
-while getopts "h" opt; do
+while getopts ":ph" opt; do
     case $opt in
         p)
             pseudo_build=true
