@@ -4,6 +4,31 @@ set -u
 set -e
 set -o pipefail
 
+pseudo_build=
+
+usage() {
+    echo "$(basename "$0") [-p]"
+    echo
+    echo "Build task and pipeline bundles and push them to the registry. Run this script from the root of the repository."
+    echo
+    echo "  -p      pseudo build. No real task and pipeline bundles are built and pushed."
+    exit 1
+}
+
+while getopts "h" opt; do
+    case $opt in
+        p)
+            pseudo_build=true
+            ;;
+        h)
+            usage
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+
 _tkn_bundle_push() {
     local status
     local retry=0
@@ -59,7 +84,7 @@ Pushed Tekton Bundle to ${resource_image_repo}@sha256:${checksum}
 "
 }
 
-if [ -n "$PSEUDO_BUILD_PUSH" ]; then
+if [ "$pseudo_build" == "true" ]; then
     tkn_bundle_push="pseudo_tkn_bundle_push"
 else
     tkn_bundle_push="_tkn_bundle_push"
@@ -72,7 +97,7 @@ extract_bundle_ref() {
 
 inspect_bundle_digest() {
     local -r image_ref=${1:?Missing image reference of a tekton bundle}
-    if [ -n "$PSEUDO_BUILD_PUSH" ]; then
+    if [ "$pseudo_build" == "true" ]; then
         return 1  # meaning the bundle does not exist in the registry yet.
     fi
     skopeo inspect --no-tags --format='{{.Digest}}' "docker://${image_ref}" 2>/dev/null
@@ -103,7 +128,7 @@ find "$TASKS_DIR" -maxdepth 1 -name "task-*.yaml" | while read -r file_path; do
         bundle_build_log=/tmp/bundle-build.log
         $tkn_bundle_push -f "${task_filename}" "${bundle}-${git_revision}" --label version="$k8s_task_version" | \
             tee "$bundle_build_log"
-        if [ -z "$PSEUDO_BUILD_PUSH" ]; then
+        if [ -z "$pseudo_build" ]; then
             skopeo copy "docker://${bundle}-${git_revision}" "docker://${bundle}"
         fi
         image_digest=$(extract_bundle_ref <"$bundle_build_log")
@@ -125,7 +150,7 @@ fi
 
 git_revision=$(git log -n 1 --pretty=format:%H -- "${PIPELINES_DIR}/pipeline-0.1.yaml")
 pipeline_bundle="${PIPELINE_IMAGE_REPO}:${git_revision}"
-if [ -n "$PSEUDO_BUILD_PUSH" ] || ! skopeo inspect --no-tags --format '{{.Digest}}' "docker://${pipeline_bundle}" >/dev/null 2>&1
+if [ "$pseudo_build" == "true" ] || ! skopeo inspect --no-tags --format '{{.Digest}}' "docker://${pipeline_bundle}" >/dev/null 2>&1
 then
     echo
     $tkn_bundle_push -f "${PIPELINES_BUILD_DIR}/pipeline.yaml" "${pipeline_bundle}"
