@@ -43,8 +43,8 @@ spec:
         name: coverage
       runAfter:
         - test
-        - clone
-        - init
+        - git-clone
+        - initialize
       workspaces:
       - name: source
         workspace: workspace
