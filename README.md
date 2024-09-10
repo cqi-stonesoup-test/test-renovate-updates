@@ -17,6 +17,37 @@ export TEST_REPO=cqi-stonesoup-test/test-renovate-updates
 make run/renovate
 ```
 
+## Propose a migration
+
+* Modify the pipeline
+* Modify the task. Skip if update made to build-definitions is only applied to pipeline.
+* Run: `./hack/create-migration.sh <task name>`
+* Review the generated migration file
+* Commit the working tree
+
+For example, to update execution order of task `coverage`, the workflow is:
+
+- Update field `.runAfter`
+- Run `./hack/create-migration.sh coverage`
+
+As a result, task version is bumped in the task definition:
+
+```diff
+ metadata:
+   name: coverage
+   labels:
+-    app.kubernetes.io/version: "0.1.2"
++    app.kubernetes.io/version: "0.1.3"
+     build.appstudio.redhat.com/build_type: "docker"
+   annotations:
+```
+
+And, a migration file `tasks/migrations/task-coverage-0.1.3.sh` is generated with yq commands.
+
+The whole changes is in commit [eb8ff062320d1c53e636d50e5a3e9ee119cfb362](https://github.com/cqi-stonesoup-test/test-renovate-updates/commit/eb8ff062320d1c53e636d50e5a3e9ee119cfb362)
+
+The result Renovate update pull request: [PR #42](https://github.com/cqi-stonesoup-test/test-renovate-updates/pull/42/)
+
 ## Migrate per task
 
 Example run:

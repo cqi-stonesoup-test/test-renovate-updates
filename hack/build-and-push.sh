@@ -5,18 +5,28 @@ set -e
 set -o pipefail
 
 pseudo_build=
+show_pl_diff=
+diff_output_file=
 
 usage() {
-    echo "$(basename "$0") [-p]"
+    echo "$(basename "$0") [-p] [-d] [-o]"
     echo
     echo "Build task and pipeline bundles and push them to the registry. Run this script from the root of the repository."
     echo
-    echo "  -p      pseudo build. No real task and pipeline bundles are built and pushed."
+    echo "  -p          pseudo build. No real task and pipeline bundles are built and pushed."
+    echo "  -d          show differences between the last pipeline bundle and the newly built one."
+    echo "  -o PATH     write the differences to this file."
     exit 1
 }
 
-while getopts ":ph" opt; do
+while getopts ":phdo:" opt; do
     case $opt in
+        d)
+            show_pl_diff=true
+            ;;
+        o)
+            diff_output_file=$OPTARG
+            ;;
         p)
             pseudo_build=true
             ;;
@@ -142,10 +152,15 @@ done
 PIPELINE_IMAGE_REPO=quay.io/mytestworkload/test-renovate-updates-pipeline
 declare -r PIPELINE_IMAGE_REPO
 
-digest=$(curl -sL "https://quay.io/api/v1/repository/${PIPELINE_IMAGE_REPO#*/}/tag/?onlyActiveTags=true&limit=5" | jq -r '.tags[0].manifest_digest')
-latest_pushed_pipeline="/tmp/pipeline-build-${digest#*:}.yaml"
-if [ ! -e "$latest_pushed_pipeline" ]; then
-    tkn bundle list -o yaml "${PIPELINE_IMAGE_REPO}@${digest}" pipeline pipeline-build >"$latest_pushed_pipeline"
+if [ "$show_pl_diff" == "true" ]; then
+    digest=$(
+        curl -sL "https://quay.io/api/v1/repository/${PIPELINE_IMAGE_REPO#*/}/tag/?onlyActiveTags=true&limit=5" \
+        | jq -r '.tags[0].manifest_digest'
+    )
+    latest_pushed_pipeline="/tmp/pipeline-build-${digest#*:}.yaml"
+    if [ ! -e "$latest_pushed_pipeline" ]; then
+        tkn bundle list -o yaml "${PIPELINE_IMAGE_REPO}@${digest}" pipeline pipeline-build >"$latest_pushed_pipeline"
+    fi
 fi
 
 git_revision=$(git log -n 1 --pretty=format:%H -- "${PIPELINES_DIR}/pipeline-0.1.yaml")
@@ -156,6 +171,9 @@ then
     $tkn_bundle_push -f "${PIPELINES_BUILD_DIR}/pipeline.yaml" "${pipeline_bundle}"
 fi
 
-dyff between --omit-header --color=off --no-table-style "$latest_pushed_pipeline" "${PIPELINES_BUILD_DIR}/pipeline.yaml" | \
-tee /tmp/pipeline-diff.txt
-python3 migrate_with_yq.py -i </tmp/pipeline-diff.txt
+if [ "$show_pl_diff" == "true" ]; then
+    dyff between --omit-header --color=off --no-table-style \
+        "$latest_pushed_pipeline" "${PIPELINES_BUILD_DIR}/pipeline.yaml" \
+        | tee /tmp/pipeline-diff.txt
+    python3 migrate_with_yq.py -i </tmp/pipeline-diff.txt | tee "$diff_output_file"
+fi
