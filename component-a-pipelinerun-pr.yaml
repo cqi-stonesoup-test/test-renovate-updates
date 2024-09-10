@@ -74,13 +74,11 @@ spec:
         - name: name
           value: coverage
         - name: bundle
-          value: quay.io/mytestworkload/test-renovate-updates-task-coverage:0.1@sha256:415fcd8e3eac18bd4bba678e4acb2437ecc9ee30f88d74cece1dfbced557ba6e
+          value: quay.io/mytestworkload/test-renovate-updates-task-coverage:0.1@sha256:8685eddb6af6fd75a6f96d97a88cf2d9b83ec88f051fe5e4ba739fb3686dd392
         - name: kind
           value: task
       runAfter:
       - test
-      - git-clone
-      - initialize
       workspaces:
       - name: source
         workspace: workspace
