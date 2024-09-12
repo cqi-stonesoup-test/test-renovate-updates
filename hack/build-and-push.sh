@@ -190,8 +190,10 @@ while read -r pipeline_file; do
 
     if [ "$show_pl_diff" == "true" ]; then
         # FIXME: output format for multiple pipelines
-        dyff between --omit-header --color=off --no-table-style "$latest_pushed_pipeline" "$pipeline_file" \
-        | tee /tmp/pipeline-diff.txt
+        dyff between --omit-header --color=off --no-table-style \
+            --exclude-regexp "/spec/tasks/name=.+/taskRef/params/name=.+/value" \
+            "$latest_pushed_pipeline" "$pipeline_file" \
+            | tee /tmp/pipeline-diff.txt
         python3 migrate_with_yq.py -i </tmp/pipeline-diff.txt | tee -a "$diff_output_file"
     fi
 done
