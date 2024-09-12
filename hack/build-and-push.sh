@@ -116,10 +116,11 @@ inspect_bundle_digest() {
 
 TASKS_DIR=./tasks
 PIPELINES_DIR=./pipelines
-PIPELINES_BUILD_DIR="${PIPELINES_DIR}/temp"
+PIPELINES_BUILD_DIR="${PIPELINES_DIR}/build"
 
 [ -e "$PIPELINES_BUILD_DIR" ] || mkdir "$PIPELINES_BUILD_DIR"
-cp "${PIPELINES_DIR}/pipeline-0.1.yaml" "${PIPELINES_BUILD_DIR}/pipeline.yaml"
+
+kustomize build -o "$PIPELINES_BUILD_DIR" ./pipelines/
 
 find "$TASKS_DIR" -maxdepth 1 -name "task-*.yaml" | while read -r file_path; do
     task_yaml_file="$(basename "$file_path")"
@@ -146,34 +147,50 @@ find "$TASKS_DIR" -maxdepth 1 -name "task-*.yaml" | while read -r file_path; do
     fi
 
     git_resolver="{\"resolver\": \"bundles\", \"params\": [{\"name\": \"name\", \"value\": \"${task_name}\"}, {\"name\": \"bundle\", \"value\": \"${bundle_ref}\"}, {\"name\": \"kind\", \"value\": \"task\"}]}"
-    yq -i "(.spec.tasks[].taskRef | select(.name == \"${task_name}\")) |= ${git_resolver}" "${PIPELINES_BUILD_DIR}/pipeline.yaml"
+    expr="(.spec.tasks[].taskRef | select(.name == \"${task_name}\")) |= ${git_resolver}"
+
+    find "$PIPELINES_BUILD_DIR" -name "tekton.dev_v1_pipeline*.yaml" | \
+    while read -r pipeline_file; do
+        yq -i "$expr" "$pipeline_file"
+    done
 done
 
-PIPELINE_IMAGE_REPO=quay.io/mytestworkload/test-renovate-updates-pipeline
-declare -r PIPELINE_IMAGE_REPO
+PIPELINE_BUNDLE_REPO_PREFIX=quay.io/mytestworkload/test-renovate-updates-pipeline-
+declare -r PIPELINE_BUNDLE_REPO_PREFIX
 
-if [ "$show_pl_diff" == "true" ]; then
-    digest=$(
-        curl -sL "https://quay.io/api/v1/repository/${PIPELINE_IMAGE_REPO#*/}/tag/?onlyActiveTags=true&limit=5" \
-        | jq -r '.tags[0].manifest_digest'
-    )
-    latest_pushed_pipeline="/tmp/pipeline-build-${digest#*:}.yaml"
-    if [ ! -e "$latest_pushed_pipeline" ]; then
-        tkn bundle list -o yaml "${PIPELINE_IMAGE_REPO}@${digest}" pipeline pipeline-build >"$latest_pushed_pipeline"
+GIT_REVISION=$(git rev-parse HEAD)
+declare -r GIT_REVISION
+
+fetch_last_pushed_pipeline_bundle() {
+    local -r pipeline_name=${1?Missing pipeline name}
+    return 0
+}
+
+# ###### Build and push pipeline bundles ######
+
+find "$PIPELINES_BUILD_DIR" -name "tekton.dev_v1_pipeline*.yaml" | \
+while read -r pipeline_file; do
+    pipeline_name=$(yq '.metadata.name' "$pipeline_file")
+    bundle_repo="${PIPELINE_BUNDLE_REPO_PREFIX}${pipeline_name}"
+
+    if [ "$show_pl_diff" == "true" ]; then
+        digest=$(
+            curl -sL "https://quay.io/api/v1/repository/${bundle_repo#*/}/tag/?onlyActiveTags=true&limit=5" \
+            | jq -r '.tags[0].manifest_digest'
+        )
+        latest_pushed_pipeline="/tmp/pipeline-${pipeline_name}-${digest#*:}.yaml"
+        if [ ! -e "$latest_pushed_pipeline" ]; then
+            tkn bundle list -o yaml "${bundle_repo}@${digest}" pipeline "$pipeline_name" >"$latest_pushed_pipeline"
+        fi
     fi
-fi
 
-git_revision=$(git log -n 1 --pretty=format:%H -- "${PIPELINES_DIR}/pipeline-0.1.yaml")
-pipeline_bundle="${PIPELINE_IMAGE_REPO}:${git_revision}"
-if [ "$pseudo_build" == "true" ] || ! skopeo inspect --no-tags --format '{{.Digest}}' "docker://${pipeline_bundle}" >/dev/null 2>&1
-then
-    echo
-    $tkn_bundle_push -f "${PIPELINES_BUILD_DIR}/pipeline.yaml" "${pipeline_bundle}"
-fi
+    # echo
+    $tkn_bundle_push -f "$pipeline_file" "${bundle_repo}:${GIT_REVISION}"
 
-if [ "$show_pl_diff" == "true" ]; then
-    dyff between --omit-header --color=off --no-table-style \
-        "$latest_pushed_pipeline" "${PIPELINES_BUILD_DIR}/pipeline.yaml" \
+    if [ "$show_pl_diff" == "true" ]; then
+        # FIXME: output format for multiple pipelines
+        dyff between --omit-header --color=off --no-table-style "$latest_pushed_pipeline" "$pipeline_file" \
         | tee /tmp/pipeline-diff.txt
-    python3 migrate_with_yq.py -i </tmp/pipeline-diff.txt | tee "$diff_output_file"
-fi
+        python3 migrate_with_yq.py -i </tmp/pipeline-diff.txt | tee -a "$diff_output_file"
+    fi
+done

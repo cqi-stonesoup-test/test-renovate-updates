@@ -1,0 +1,10 @@
+---
+- op: replace
+  path: /metadata/name
+  value: fbc-builder
+- op: replace
+  path: /metadata/labels
+  value:
+    "pipelines.openshift.io/used-by": "build-cloud"
+    "pipelines.openshift.io/runtime": "fbc"
+    "pipelines.openshift.io/strategy": "fbc"
