@@ -100,11 +100,6 @@ else
     tkn_bundle_push="_tkn_bundle_push"
 fi
 
-# Extract tekton bundle reference from tkn-bundle-push output
-extract_bundle_ref() {
-    echo "^Pushed Tekton Bundle to " | cut -d' ' -f5
-}
-
 inspect_bundle_digest() {
     local -r image_ref=${1:?Missing image reference of a tekton bundle}
     if [ "$pseudo_build" == "true" ]; then
@@ -142,8 +137,8 @@ find "$TASKS_DIR" -maxdepth 1 -name "task-*.yaml" | while read -r file_path; do
         if [ -z "$pseudo_build" ]; then
             skopeo copy "docker://${bundle}-${git_revision}" "docker://${bundle}"
         fi
-        image_digest=$(extract_bundle_ref <"$bundle_build_log")
-        bundle_ref="${bundle}@${image_digest}"
+        bundle_with_only_digest=$(grep "^Pushed Tekton Bundle to " <"$bundle_build_log" | cut -d' ' -f5)
+        bundle_ref="${bundle}@${bundle_with_only_digest#*@}"
     fi
 
     git_resolver="{\"resolver\": \"bundles\", \"params\": [{\"name\": \"name\", \"value\": \"${task_name}\"}, {\"name\": \"bundle\", \"value\": \"${bundle_ref}\"}, {\"name\": \"kind\", \"value\": \"task\"}]}"
