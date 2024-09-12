@@ -141,7 +141,13 @@ find "$TASKS_DIR" -maxdepth 1 -name "task-*.yaml" | while read -r file_path; do
         bundle_ref="${bundle}@${bundle_with_only_digest#*@}"
     fi
 
-    git_resolver="{\"resolver\": \"bundles\", \"params\": [{\"name\": \"name\", \"value\": \"${task_name}\"}, {\"name\": \"bundle\", \"value\": \"${bundle_ref}\"}, {\"name\": \"kind\", \"value\": \"task\"}]}"
+    git_resolver="{
+\"resolver\": \"bundles\",
+\"params\": [
+    {\"name\": \"name\", \"value\": \"${task_name}\"},
+    {\"name\": \"bundle\", \"value\": \"${bundle_ref}\"},
+    {\"name\": \"kind\", \"value\": \"task\"}
+]}"
     expr="(.spec.tasks[].taskRef | select(.name == \"${task_name}\")) |= ${git_resolver}"
 
     find "$PIPELINES_BUILD_DIR" -name "tekton.dev_v1_pipeline*.yaml" | \
