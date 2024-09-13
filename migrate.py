@@ -320,12 +320,12 @@ def generate_yq_commands(differences: dict[str, dict[str, str]]) -> list[str]:
                             for item in detail_items:
                                 condition_expr = " and ".join(f'.{key} == "{val}"' for key, val in item.items())
                                 commands.append(
-                                    wrap_yq( f'del({path_filters_pipe}[] | select({condition_expr}))', in_place=True)
+                                    wrap_yq(f'del({path_filters_pipe}[] | select({condition_expr}))', in_place=True)
                                 )
                                 commands.append(
                                     wrap_yq(f"({path_filters_pipe}) += {json_compact_dumps(item)}", in_place=True)
                                 )
-                        if path_filters[-1] in [".runAfter"]:
+                        elif path_filters[-1] in [".runAfter"]:
                             commands.append(
                                 wrap_yq(f"({path_filters_pipe}) += {json_compact_dumps(detail_items)}", in_place=True)
                             )
@@ -333,13 +333,17 @@ def generate_yq_commands(differences: dict[str, dict[str, str]]) -> list[str]:
                     elif op == OP_REMOVED:
                         if path_filters[-1] in [".params", ".workspaces"]:
                             for item in detail_items:
-                                name, value = item["name"], item["value"]
-                                cmd = wrap_yq(
-                                    f'del({path_filters_pipe}[] | select(.name == "{name}" and .value == "{value}"))',
-                                    in_place=True,
+                                condition_expr = " and ".join(f'.{key} == "{val}"' for key, val in item.items())
+                                commands.append(
+                                    wrap_yq(f'del({path_filters_pipe}[] | select({condition_expr}))', in_place=True)
                                 )
-                                commands.append(cmd)
-                        if path_filters[-1] in [".runAfter"]:
+                        elif path_filters[-1] in [".tasks"]:
+                            for item in detail_items:
+                                task_name = item["name"]
+                                commands.append(
+                                    wrap_yq(f'del({path_filters_pipe}[] | select(.name == "{task_name}"))', in_place=True)
+                                )
+                        elif path_filters[-1] in [".runAfter"]:
                             commands.append(
                                 dedent(
                                     f'''\
