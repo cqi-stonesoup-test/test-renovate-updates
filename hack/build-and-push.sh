@@ -132,7 +132,7 @@ find "$TASKS_DIR" -maxdepth 1 -name "task-*.yaml" | while read -r file_path; do
         task_filename="${TASKS_DIR}/task-${task_name}-${task_version}.yaml"
         k8s_task_version=$(yq '.metadata.labels."app.kubernetes.io/version"' "$task_filename")
         bundle_build_log=/tmp/bundle-build.log
-        $tkn_bundle_push -f "${task_filename}" "${bundle}-${git_revision}" --label version="$k8s_task_version" | \
+        $tkn_bundle_push -f "${task_filename}" "${bundle}-${git_revision}" --label task_version="$k8s_task_version" | \
             tee "$bundle_build_log"
         if [ -z "$pseudo_build" ]; then
             skopeo copy "docker://${bundle}-${git_revision}" "docker://${bundle}"

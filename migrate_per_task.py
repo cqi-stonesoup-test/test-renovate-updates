@@ -92,7 +92,7 @@ def migrate(from_task_bundle: str, to_task_bundle: str, pipeline_run_file: str) 
         config_json = json.loads(buf.getvalue())
         buf.close()
         if "Labels" in config_json["config"]:
-            task_version = config_json["config"]["Labels"]["version"]
+            task_version = config_json["config"]["Labels"]["task_version"]
         else:
             # Get the version from app.kubernetes.io/version
             layer_digest = layers[0]["digest"]
