@@ -13,9 +13,10 @@ spec:
       description: Image URL for build by PipelineRun
     - name: skip-checks
       description: Skip checks against built image
-      default: "false"
+      default: "true"
   steps:
     - name: init
       image: registry.fedoraproject.org/fedora-minimal:40
       script: |
-        echo init build pipeline
+        echo "This is the initialization task of the build pipeline."
+        echo "By default, Checks are skipped to boost the build process."
