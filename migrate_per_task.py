@@ -32,6 +32,8 @@ def resolve_pipeline(pipeline_file: str) -> Generator[str]:
     kind = origin_pipeline["kind"]
     if kind == TEKTON_KIND_PIPELINE:
         yield pipeline_file
+        pl_yaml = load_yaml(pipeline_file)
+        dump_yaml(pipeline_file, pl_yaml)
     elif kind == TEKTON_KIND_PIPELINE_RUN:
         if "pipelineSpec" in origin_pipeline["spec"]:
             # pipeline definition is inline the PipelineRun
