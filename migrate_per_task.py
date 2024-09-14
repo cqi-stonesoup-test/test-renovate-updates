@@ -44,16 +44,9 @@ def resolve_pipeline(pipeline_file: str) -> Generator[str]:
             origin_pipeline["spec"]["pipelineSpec"] = modified_pipeline["spec"]
             dump_yaml(pipeline_file, origin_pipeline)
         elif "pipelineRef" in origin_pipeline["spec"]:
-            # pipeline definition is referenced by name or git-resolver
-            pipeline_ref = origin_pipeline["spec"]["pipelineRef"]
-            if "name" in pipeline_ref:
-                ref_pipeline = os.path.join(os.path.dirname(pipeline_file), pipeline_ref["name"])
-                yield ref_pipeline
-            elif "bundle" in pipeline_ref:
-                # TODO: resolve and read pipeline
-                raise NotImplementedError("read pipeline referenced by git-resolver")
-            else:
-                raise ValueError("Unknown pipelineRef section")
+            # If PipelineRun is configured to reference the pipeline via name or git-resolver,
+            # there should not be task bundle updates in the PipelineRun YAML file.
+            raise ValueError("PipelineRun definition seems be invalid.")
         else:
             raise ValueError("PipelineRun .spec field includes neither .pipelineSpec nor .pipelineRef field.")
 
