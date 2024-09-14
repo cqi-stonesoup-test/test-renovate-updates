@@ -128,4 +128,4 @@ def migrate(from_task_bundle: str, to_task_bundle: str, pipeline_run_file: str) 
     with resolve_pipeline(pipeline_run_file) as pipeline_file:
         for migration_file in migration_files:
             logger.info("apply migrations %s to %s", migration_file, pipeline_file)
-            subprocess.run(["bash", "-x", migration_file, pipeline_file], check=True)
+            subprocess.run(["bash", migration_file, pipeline_file], check=True)
