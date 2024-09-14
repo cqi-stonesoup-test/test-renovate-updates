@@ -31,6 +31,8 @@ spec:
       params:
       - name: verbose
         value: vv
+      - name: include-paths
+        value: "src/"
       taskRef:
         name: test
       runAfter:
