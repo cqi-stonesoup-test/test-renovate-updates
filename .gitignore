@@ -11,3 +11,4 @@ pipelines/build/
 __pycache__/
 shell.log
 .idea/
+*.kate-swp
