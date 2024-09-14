@@ -351,7 +351,7 @@ def generate_yq_commands(differences: dict[str, dict[str, str]]) -> list[str]:
                                         local -r remove_item=$1
                                         local -r target_file=$2
                                         task_names=$(yq '{path_filters_pipe}[]' "$target_file" | nl -v 0)
-                                        grep "$remove_item" <<<"$task_names" | while read -r idx task_name; do
+                                        grep "$remove_item" <<<"$task_names" || true | while read -r idx task_name; do
                                             yq -i "del({path_filters_pipe.replace('"', '\\"')}[$idx])" "$target_file"
                                         done
                                     }}'''
