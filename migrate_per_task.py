@@ -9,7 +9,7 @@ import tempfile
 
 from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Final
+from typing import Any, Final
 
 from utils import determine_task_bundle_updates_range, quay_registry, parse_image_reference, load_yaml, dump_yaml, \
     create_yaml_obj
@@ -22,12 +22,9 @@ logger.setLevel(logging.DEBUG)
 
 
 @contextmanager
-def resolve_pipeline(pipeline_file: str) -> Generator[str]:
+def resolve_pipeline(pipeline_file: str) -> Generator[str, Any, None]:
     """Yield resolved pipeline file"""
     origin_pipeline = load_yaml(pipeline_file)
-
-    # TODO: delete the temporary pipeline file?
-    # TODO: extract this pipeline resolution
 
     kind = origin_pipeline["kind"]
     if kind == TEKTON_KIND_PIPELINE:
