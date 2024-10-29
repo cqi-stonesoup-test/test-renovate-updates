@@ -33,7 +33,7 @@ BUILD_LOG_FILE ?= build.log
 run/renovate:
 	@echo "Renovating ..."
 	@LOG_LEVEL=debug RENOVATE_CONFIG_FILE="$(shell pwd)/config/renovate-global-config.json" \
-		renovate --token "$(GH_TOKEN)" "$(TEST_REPO)" 2>&1 >"$(BUILD_LOG_FILE)"
+		renovate --custom-env-variables MY_VAR=my_laptop --token "$(GH_TOKEN)" "$(TEST_REPO)" 2>&1 >"$(BUILD_LOG_FILE)"
 
 
 .PHONY: set-task-bundle
