@@ -4,6 +4,6 @@
     "^git .+",
     "^echo .+",
     "^migration-tool(\\.sh|\\.py)? .+",
-    "^post-handle.sh .+"
+    "^post-handle.sh"
   ]
 }
