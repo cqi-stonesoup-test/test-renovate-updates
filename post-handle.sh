@@ -1,4 +1,8 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
+
+env
+echo "============================="
+export
 
 echo "============================="
 echo "my var: $MY_VAR"
