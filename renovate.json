@@ -8,7 +8,7 @@
     "fileMatch": ["./*.yaml"],
     "postUpgradeTasks": {
       "commands": [
-        "migration-tool.py -f {{depName}}{{#if currentValue}}:{{currentValue}}{{/if}}{{#if currentDigest}}@{{currentDigest}}{{/if}} -t {{depName}}{{#if newValue}}:{{newValue}}{{/if}}{{#if newDigest}}@{{newDigest}}{{/if}} -m manual -p {{packageFile}}"
+        "echo $MY_VAR"
       ]
     }
   },
