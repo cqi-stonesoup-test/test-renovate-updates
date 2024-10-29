@@ -34,8 +34,8 @@ run/renovate:
 	@echo "Renovating ..."
 	@LOG_LEVEL=debug RENOVATE_CONFIG_FILE="$(shell pwd)/config/renovate-global-config.json" \
 		renovate \
-		--secrets '{"my_secret": "my-secret"}' \
-		--custom-env-variables '{"MY_VAR": "{{ secrets.my_secret}}"}' \
+		--secrets '{"MY_SECRET": "my-secret"}' \
+		--custom-env-variables '{"MY_VAR": "{{ secrets.MY_SECRET }}"}' \
 		--token "$(GH_TOKEN)" "$(TEST_REPO)" \
 		2>&1 >"$(BUILD_LOG_FILE)"
 
