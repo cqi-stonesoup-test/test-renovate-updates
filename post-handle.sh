@@ -1,10 +1,21 @@
 #!/usr/bin/bash
 
-env
 echo "============================="
-export
+echo $@
 
+echo
 echo "============================="
-echo "my var: $MY_VAR"
+echo "{{ upgrades }}"
+
+echo
 echo "============================="
-echo "digest: $1"
+echo "{{{ toJSON upgrades }}}"
+
+echo
+echo "============================="
+git status
+
+echo
+echo "============================="
+git diff
+

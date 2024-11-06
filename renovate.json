@@ -9,7 +9,8 @@
     "postUpgradeTasks": {
       "commands": [
         "test-renovate-updates-post-handle.sh new_digest"
-      ]
+      ],
+      "executionMode": "branch"
     }
   },
 
