@@ -1,15 +1,12 @@
 #!/usr/bin/bash
 
+echo
 echo "============================="
-echo $@
+echo "$1"
 
 echo
 echo "============================="
-echo "{{ upgrades }}"
-
-echo
-echo "============================="
-echo "{{{ toJSON upgrades }}}"
+echo "$2"
 
 echo
 echo "============================="
