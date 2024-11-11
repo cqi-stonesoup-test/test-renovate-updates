@@ -232,5 +232,13 @@ def main():
         migrate_update(args.from_task_bundle, args.to_task_bundle, defs_temp_dir, args.pipeline_run_file)
 
 
+def main_handle_upgrades_json():
+    import sys
+    import json
+    upgrads_json = sys.argv[1]
+    n_upgrades = len(json.loads(upgrads_json))
+    print(f"There are {n_upgrades} upgrades.")
+
+
 if __name__ == "__main__":
-    main()
+    main_handle_upgrades_json()

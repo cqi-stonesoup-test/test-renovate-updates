@@ -8,7 +8,7 @@
     "fileMatch": ["./*.yaml"],
     "postUpgradeTasks": {
       "commands": [
-        "test-renovate-updates-post-handle.sh '{{{ toJSON upgrades }}}'"
+        "migration-tool.py '{{{ toJSON upgrades }}}'"
       ],
       "executionMode": "branch"
     }
