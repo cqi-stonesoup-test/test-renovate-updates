@@ -63,6 +63,21 @@ python3 migration-tool.py \
 
 It will apply migrations from `./tasks/migrations/task-clone-*.sh`
 
+## Migrate per branch
+
+Run in execution mode `branch`.
+
+Rely on Renovate template field `upgrades`. In practice, `upgrades` is
+converted to JSON data, which then can be handled by the script.
+
+Example post-upgrade task configuration:
+
+```bash
+test-renovate-updates-post-handle.sh '{{{ toJSON upgrades }}}'
+```
+
+Example `upgrades` JSON data `./branch-deps-upgrades.json`.
+
 ## Scenarios
 
 Task `init` is selected as the one to be changed for fictional update.
