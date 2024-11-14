@@ -45,7 +45,7 @@ spec:
       - name: name
         value: test
       - name: bundle
-        value: "quay.io/mytestworkload/test-renovate-updates-task-test:0.1@sha256:ecf393c8f6fc87a952c9b07473ec303b616b2a944665d7eb1e646466b8cc9319"
+        value: "quay.io/mytestworkload/test-renovate-updates-task-test"
       - name: kind
         value: task
       resolver: bundles
