@@ -39,6 +39,12 @@
     {
       "matchDatasources": ["pypi"],
       "groupName": "python-deps"
+    },
+    {
+      "matchPackageNames": [
+        "registry.access.redhat.com/*"
+      ],
+      "groupName": "registry.access.redhat.com-images"
     }
   ]
 }
