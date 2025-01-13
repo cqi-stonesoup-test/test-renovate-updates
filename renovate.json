@@ -44,7 +44,7 @@
       "matchFileNames": ["Dockerfile"],
       "matchDatasources": ["docker"],
       "matchPackageNames": [
-        " registry.access.redhat.com/ubi9/*"
+        "registry.access.redhat.com/ubi9/python-312"
       ],
       "groupName": "registry.access.redhat.com-images"
     }
