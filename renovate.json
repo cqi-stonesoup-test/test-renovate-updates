@@ -43,7 +43,7 @@
     {
       "matchDatasources": ["docker"],
       "matchPackageNames": [
-        "registry.access.redhat.com/*"
+        "registry.access.redhat.com/rhel8/*"
       ],
       "groupName": "registry.access.redhat.com-images"
     }
