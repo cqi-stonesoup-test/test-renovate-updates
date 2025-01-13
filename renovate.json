@@ -41,6 +41,7 @@
       "groupName": "python-deps"
     },
     {
+      "matchFileNames": ["Dockerfile"],
       "matchDatasources": ["docker"],
       "matchPackageNames": [
         " registry.access.redhat.com/ubi9/*"
