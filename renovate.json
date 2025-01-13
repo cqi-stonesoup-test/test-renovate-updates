@@ -41,12 +41,10 @@
       "groupName": "python-deps"
     },
     {
-      "matchFileNames": ["Dockerfile"],
-      "matchDatasources": ["docker"],
+      "groupName": "redhat-images",
       "matchPackageNames": [
         "registry.access.redhat.com/ubi9/python-312"
-      ],
-      "groupName": "registry.access.redhat.com-images"
+      ]
     }
   ]
 }
