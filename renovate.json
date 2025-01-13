@@ -41,6 +41,7 @@
       "groupName": "python-deps"
     },
     {
+      "matchDatasources": ["docker"],
       "matchPackageNames": [
         "registry.access.redhat.com/*"
       ],
