@@ -35,6 +35,10 @@
         "quay.io/mytestworkload/test-renovate-updates-task-test"
       ],
       "groupName": "devel"
+    },
+    {
+      "matchDatasources": ["pypi"],
+      "groupName": "python-deps"
     }
   ]
 }
