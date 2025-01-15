@@ -8,6 +8,7 @@
     "fileMatch": ["./*.yaml"],
     "postUpgradeTasks": {
       "commands": [
+        "echo '{{{ toJSON upgrades }}}'",
         "migration-tool.py '{{{ toJSON upgrades }}}'"
       ],
       "executionMode": "branch"
