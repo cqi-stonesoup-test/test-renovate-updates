@@ -1,9 +1,6 @@
 {
   "allowedPostUpgradeCommands": [
-    "^yq .+",
-    "^git .+",
-    "^echo .+",
-    "^migration-tool(\\.sh|\\.py)? .+",
-    "^test-renovate-updates-post-handle.sh .+"
+    "^echo '{{{ toJSON upgrades }}}'$",
+    "^migration-tool.py '{{{ toJSON upgrades }}}'$"
   ]
 }
